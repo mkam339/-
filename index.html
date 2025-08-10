@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>طويق التعليمية — نموذج واجهة</title>
-  <script src="blob:https://i.ibb.co/Cpc7k6bM/Screenshot-2025-08-10-135424.png"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
       --primary:#55AB77;
@@ -36,9 +36,9 @@
 
       <div class="hidden md:flex items-center gap-6">
         <a href="#" class="text-sm text-gray-700 hover:text-black">الرئيسية</a>
-       
+        <a href="#courses" class="text-sm text-gray-700 hover:text-black">الدورات</a>
         <a href="#about" class="text-sm text-gray-700 hover:text-black">عن طويق</a>
- 
+        <a href="#contact" class="text-sm text-gray-700 hover:text-black">تواصل</a>
       </div>
 
       <div class="flex items-center gap-3">
@@ -55,18 +55,21 @@
         <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight">
           طويق التعليمية — رحلة التميز تبدأ هنا
         </h1>
-        <p class="mt-4 text-gray-600">دورة متخصصة، ومنهجية مراجعة ذكية تساعدك تتفوق.</p>
+        <p class="mt-4 text-gray-600">دورات متخصصة، اختبارات كمي ولفظي، ومنهجية مراجعة ذكية تساعدك تتفوق.</p>
 
         <div class="mt-6 flex gap-3">
           <a href="#courses" class="px-6 py-3 btn-primary rounded shadow text-sm">تصفح الدورات</a>
+          <a href="#" onclick="goToMyCourses()" class="px-6 py-3 border rounded text-sm">دوراتي</a>
         </div>
 
         <div class="mt-8 text-sm text-gray-500">
+          <span class="inline-block mr-3">ألوان الموقع: <span class="px-2 rounded" style="background:var(--primary); color:#fff">#55AB77</span></span>
+          <span>الخط: أسود للنصوص، أبيض للخلفية</span>
         </div>
       </div>
 
       <div class="hidden lg:block">
-        <img src="https://i.ibb.co/Cpc7k6bM/Screenshot-2025-08-10-135424.png text=طويق+تعليمي" alt="hero" class="rounded-lg card-shadow w-full">
+        <img src="https://placehold.co/700x420?text=طويق+تعليمي" alt="hero" class="rounded-lg card-shadow w-full">
       </div>
     </div>
   </header>
@@ -74,8 +77,10 @@
   <!-- COURSES SECTION -->
   <section id="courses" class="container mx-auto px-6 pb-12">
     <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold">أحدث الدورات</h2>
       <div class="flex gap-2">
-     
+        <input id="searchInput" placeholder="ابحث عن دورة..." class="px-3 py-2 border rounded" />
+        <button class="px-3 py-2 border rounded" onclick="renderCourses()">بحث</button>
       </div>
     </div>
 
@@ -119,7 +124,7 @@
   <!-- MY COURSES (hidden panel) -->
   <section id="myCourses" class="container mx-auto px-6 py-12 hidden">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">دورتي</h2>
+      <h2 class="text-2xl font-bold">دوراتي</h2>
       <div>
         <button onclick="goHome()" class="px-4 py-2 border rounded">العودة</button>
       </div>
@@ -267,6 +272,8 @@
    *********************/
   const PRIMARY = '#55AB77';
   let courses = [
+    { id:1, title:'دورة القياس المتقدم', price:199, image:'https://placehold.co/800x500?text=قياس', desc:'تحضير شامل لاختبار القياس مع اختبارات تجريبية.', duration:'12 ساعة', what:['أساسيات القياس','أساليب حل الأسئلة','اختبارات زمنية'], tests:[{id:'t1',title:'اختبار كمي'}] },
+    { id:2, title:'دورة اللغة العربية', price:99, image:'https://placehold.co/800x500?text=عربي', desc:'تحسين المهارات اللغوية واختبارات لفظية مكثفة.', duration:'8 ساعات', what:['قواعد','قراءة','تمارين لفظي'], tests:[{id:'t2',title:'اختبار لفظي'}] },
     { id:3, title:'دورة الرياضيات المتقدمة', price:149, image:'https://placehold.co/800x500?text=رياضيات', desc:'دورة تغطي مفاهيم رياضية متقدمة مع حل مسائل.', duration:'10 ساعات', what:['جبر','هندسة','إحصاء'], tests:[] }
   ];
 
@@ -366,7 +373,7 @@
    *********************/
   function renderCourseButtons(){
     const wrap = document.getElementById('courseButtons'); wrap.innerHTML = '';
-    if(!courseButtons.length){ wrap.innerHTML = '<div class="text-gray-600">تواصل مع المشرف لاعطاءك كود الدخول الي الدورة.</div>'; return; }
+    if(!courseButtons.length){ wrap.innerHTML = '<div class="text-gray-600">لا توجد أزرار مُضافة بعد — اطلب من المشرف إضافتها.</div>'; return; }
     courseButtons.forEach((b,idx)=>{
       const el = document.createElement('div'); el.className='p-4 bg-white rounded-lg flex items-center justify-between card-shadow';
       el.innerHTML = `<div><div class="font-semibold">${b.title}</div><div class="text-sm text-gray-500">${b.url}</div></div><div class="flex gap-2"><a target="_blank" href="${b.url}" class="px-3 py-2 btn-primary rounded text-sm">افتح</a></div>`;
@@ -526,5 +533,3 @@
 </script>
 </body>
 </html>
-
-
