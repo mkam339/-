@@ -3,22 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>طويق التعليمية — نموذج واجهة</title>
+  <title>طويق التعليمية — نموذج واجهة (معدّل)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{
-      --primary:#55AB77;
-      --text:#111111;
-      --muted:#6b7280;
-    }
+    :root{ --primary:#55AB77; --text:#111111; --muted:#6b7280; }
     body { font-family: 'Tajawal', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); background:#fff; }
     .brand { color:var(--primary); font-weight:800; letter-spacing:1px; }
     .card-shadow { box-shadow: 0 6px 20px rgba(16,24,40,0.06); }
     .btn-primary { background:var(--primary); color:white; }
     .btn-primary:hover { background:#449a63; }
     .correct-badge { background:var(--primary); color:#fff; padding:3px 8px; border-radius:999px; font-size:12px; }
-    /* small helpers */
     .hidden { display:none; }
+    .thumb { width:120px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb; }
   </style>
 </head>
 <body class="antialiased">
@@ -35,7 +31,7 @@
       </div>
 
       <div class="hidden md:flex items-center gap-6">
-        <a href="https://mkam339.github.io/tawiq/#" class="text-sm text-gray-700 hover:text-black">الرئيسية</a>
+        <a href="#" class="text-sm text-gray-700 hover:text-black">الرئيسية</a>
         <a href="#contact" class="text-sm text-gray-700 hover:text-black">تواصل</a>
       </div>
 
@@ -58,11 +54,6 @@
         <div class="mt-6 flex gap-3">
           <a href="#" onclick="goToMyCourses()" class="px-6 py-3 border rounded text-sm">دوراتي</a>
         </div>
-
-        <div class="mt-8 text-sm text-gray-500">
-          <span class="inline-block mr-3">: <span class="px-2 rounded" style="background:var(--secoundary); color:#fff"></span></span>
-         
-        </div>
       </div>
 
       <div class="hidden lg:block">
@@ -75,14 +66,19 @@
   <section id="courses" class="container mx-auto px-6 pb-12">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold">أحدث الدورات</h2>
-      <div class="flex gap-2">
-       <input id="searchInput" placeholder="ابحث عن دورة..." class="px-3 py-2 border rounded" />
-        <button class="px-3 py-2 border rounded" onclick="renderCourses()">بحث</button>
-      </div>
+      <!-- تم حذف خانة البحث بحسب الطلب -->
     </div>
 
     <div id="coursesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- populated by JS -->
+    </div>
+
+    <!-- الصورة الثابتة المرسلة من المستخدم أسفل الدورات -->
+    <div class="mt-8">
+      <h3 class="text-lg font-semibold mb-3">صورة توضيحية</h3>
+      <img src="/mnt/data/4f66b722-edb6-45f6-8ab1-96e774620e20.jpg" alt="user-image" class="w-full rounded card-shadow" />
+      <!-- إذا لم تظهر الصورة لأن المسار محلي، سيتم استخدام رابط بديل -->
+      <noscript class="text-sm text-gray-500">قد تحتاج إلى تحميل الصورة محليًا على المسار أعلاه أو تعديل المسار ليتناسب مع بيئتك.</noscript>
     </div>
   </section>
 
@@ -91,7 +87,7 @@
     <div class="bg-white rounded-lg w-full max-w-4xl overflow-hidden shadow-xl">
       <div class="flex justify-between items-center p-4 border-b">
         <h3 id="detailTitle" class="text-xl font-bold"></h3>
-          <a href="https://mkam339.github.io/-/#" onclick="refresh page()" class="px-6 py-3 border rounded text-sm">X close</a>
+        <button onclick="closeDetail()" class="px-6 py-2 border rounded text-sm">X إغلاق</button>
       </div>
       <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-1">
@@ -111,8 +107,8 @@
           <h4 class="font-semibold mt-6">ما ستتعلمه</h4>
           <ul id="detailWhat" class="list-disc list-inside mt-2 text-gray-700"></ul>
 
-          <h4 class="font-semibold mt-6">اختبارات مرتبطة</h4>
-          <div id="detailTests" class="mt-2 flex gap-3 flex-wrap"></div>
+          <h4 class="font-semibold mt-6">الحالة</h4>
+          <div id="detailSaleState" class="mt-2 text-sm text-gray-600"></div>
         </div>
       </div>
     </div>
@@ -130,7 +126,7 @@
     <div id="myCoursesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
   </section>
 
-  <!-- AFTER PAYMENT (Simulated external completion page with buttons editable by admin) -->
+  <!-- AFTER PAYMENT -->
   <section id="postPayment" class="container mx-auto px-6 py-12 hidden">
     <div class="bg-white p-6 rounded-lg card-shadow">
       <div class="flex justify-between items-center">
@@ -140,7 +136,7 @@
         </div>
       </div>
 
-      <p class="mt-3 text-gray-600">المحتويات التالية متاحة لك. يمكن للمشرف إضافة أو حذف الأزرار من لوحة المشرفين.</p>
+      <p class="mt-3 text-gray-600">المحتويات التالية متاحة لك. يمكن للمشرف تعديلها من لوحة المشرف.</p>
 
       <div id="courseButtons" class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
     </div>
@@ -156,54 +152,52 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Buttons manager -->
+      <!-- Courses manager -->
       <div class="bg-white p-6 rounded-lg card-shadow">
-        <h3 class="font-semibold mb-4">إدارة أزرار صفحة الدورة</h3>
+        <h3 class="font-semibold mb-4">إدارة الدورات</h3>
 
-        <div class="flex gap-2 mb-4">
-          <input id="newBtnTitle" placeholder="عنوان الزر" class="px-3 py-2 border rounded w-full" />
-          <input id="newBtnUrl" placeholder="رابط (URL)" class="px-3 py-2 border rounded w-full" />
-        </div>
-        <div class="flex gap-2">
-          <button class="px-4 py-2 btn-primary rounded" onclick="addCourseButton()">إضافة زر</button>
-          <button class="px-4 py-2 border rounded" onclick="clearCourseButtons()">مسح الكل</button>
+        <div class="grid grid-cols-1 gap-2 mb-4">
+          <input id="cTitle" placeholder="عنوان الدورة" class="px-3 py-2 border rounded w-full" />
+          <input id="cPrice" type="number" min="0" placeholder="السعر (ر.س)" class="px-3 py-2 border rounded w-full" />
+          <textarea id="cDesc" placeholder="وصف الدورة" class="px-3 py-2 border rounded w-full"></textarea>
+          <input id="cDuration" placeholder="المدة (مثلاً: 10 ساعات)" class="px-3 py-2 border rounded w-full" />
+          <label class="text-sm">صورة الدورة (اختَر ملفًا من جهازك أو ضع رابطًا)</label>
+          <div class="flex gap-2">
+            <input id="cImageUrl" placeholder="رابط الصورة (URL)" class="px-3 py-2 border rounded w-full" />
+            <input id="cImageFile" type="file" accept="image/*" class="px-3 py-2 border rounded" />
+          </div>
+          <select id="cSaleState" class="px-3 py-2 border rounded w-full">
+            <option value="before">قبل العرض</option>
+            <option value="after">بعد العرض</option>
+          </select>
+
+          <div class="flex gap-2">
+            <button class="px-4 py-2 btn-primary rounded" onclick="adminAddCourse()">إضافة / حفظ</button>
+            <button class="px-4 py-2 border rounded" onclick="adminClearCourseForm()">مسح الحقول</button>
+          </div>
         </div>
 
-        <div id="adminButtonsList" class="mt-4 space-y-2"></div>
+        <div id="adminCoursesList" class="mt-4 space-y-2"></div>
       </div>
 
-      <!-- Questions manager -->
+      <!-- News images manager -->
       <div class="bg-white p-6 rounded-lg card-shadow">
-        <h3 class="font-semibold mb-4">إضافة أسئلة للاختبارات (واجهة)</h3>
+        <h3 class="font-semibold mb-4">إدارة صور الأخبار</h3>
 
-        <input id="qTest" placeholder="اختبار/دورة (اسم)" class="px-3 py-2 border rounded w-full mb-2" />
-        <textarea id="qText" placeholder="نص السؤال" class="px-3 py-2 border rounded w-full mb-2"></textarea>
-
-        <div class="grid grid-cols-1 gap-2 mb-2">
-          <input id="opt1" placeholder="خيار 1" class="px-3 py-2 border rounded w-full" />
-          <input id="opt2" placeholder="خيار 2" class="px-3 py-2 border rounded w-full" />
-          <input id="opt3" placeholder="خيار 3" class="px-3 py-2 border rounded w-full" />
-          <input id="opt4" placeholder="خيار 4" class="px-3 py-2 border rounded w-full" />
+        <div class="mb-3">
+          <label class="text-sm">رفع صورة من جهازك</label>
+          <input id="newsFile" type="file" accept="image/*" class="mt-2" />
         </div>
-
-        <div class="flex gap-2 items-center mb-3">
-          <label class="text-sm">الإجابة الصحيحة:</label>
-          <select id="correctIndex" class="px-3 py-2 border rounded">
-            <option value="0">خيار 1</option>
-            <option value="1">خيار 2</option>
-            <option value="2">خيار 3</option>
-            <option value="3">خيار 4</option>
-          </select>
-          <label class="mr-4 text-sm">وقت (ثانية لكل سؤال, فارغ = مفتوح)</label>
-          <input id="qTime" type="number" min="0" placeholder="مثلاً 30" class="px-3 py-2 border rounded w-32" />
+        <div class="mb-3">
+          <label class="text-sm">أو ضع رابط صورة</label>
+          <input id="newsUrl" placeholder="رابط الصورة" class="px-3 py-2 border rounded w-full" />
         </div>
-
         <div class="flex gap-2">
-          <button class="px-4 py-2 btn-primary rounded" onclick="addQuestion()">إضافة سؤال</button>
-          <button class="px-4 py-2 border rounded" onclick="clearQuestions()">مسح الأسئلة</button>
+          <button class="px-4 py-2 btn-primary rounded" onclick="addNewsImageFromFile()">رفع من جهاز</button>
+          <button class="px-4 py-2 border rounded" onclick="addNewsImageFromUrl()">إضافة من رابط</button>
         </div>
 
-        <div id="adminQuestionsList" class="mt-4 space-y-2"></div>
+        <div id="newsList" class="mt-4 grid grid-cols-2 gap-3"></div>
       </div>
     </div>
 
@@ -212,7 +206,6 @@
       <h3 class="font-semibold mb-3">متابعة المبيعات (محاكاة)</h3>
       <div id="salesList" class="text-sm text-gray-600">لا توجد مبيعات بعد.</div>
     </div>
-
   </section>
 
   <!-- FOOTER -->
@@ -262,26 +255,30 @@
   /*********************
    * Admin code value
    *********************/
-  const ADMIN_CODE = 'moshrif192837465'; // <--- رمز المشرف المطلوب
+  const ADMIN_CODE = 'moshrif192837465';
 
   /*********************
-   * Dummy data & state
+   * Load persisted data or defaults
    *********************/
-  const PRIMARY = '#55AB77';
-  let courses = [
-    { id:1, title:'دورة القياس المتقدم', price:199, image:'https://placehold.co/800x500?text=قياس', desc:'تحضير شامل لاختبار القياس مع اختبارات تجريبية.', duration:'12 ساعة', what:['أساسيات القياس','أساليب حل الأسئلة','اختبارات زمنية'], tests:[{id:'t1',title:'اختبار كمي'}] },
-    { id:2, title:'دورة اللغة العربية', price:99, image:'https://placehold.co/800x500?text=عربي', desc:'تحسين المهارات اللغوية واختبارات لفظية مكثفة.', duration:'8 ساعات', what:['قواعد','قراءة','تمارين لفظي'], tests:[{id:'t2',title:'اختبار لفظي'}] },
-    { id:3, title:'دورة الرياضيات المتقدمة', price:149, image:'https://placehold.co/800x500?text=رياضيات', desc:'دورة تغطي مفاهيم رياضية متقدمة مع حل مسائل.', duration:'10 ساعات', what:['جبر','هندسة','إحصاء'], tests:[] }
-  ];
+  let courses = JSON.parse(localStorage.getItem('coursesData') || 'null');
+  if(!courses){
+    courses = [
+      { id:1, title:'دورة القياس المتقدم', price:199, image:'https://placehold.co/800x500?text=قياس', desc:'تحضير شامل لاختبار القياس مع اختبارات تجريبية.', duration:'12 ساعة', saleState:'before', what:['أساسيات القياس','أساليب حل الأسئلة','اختبارات زمنية'], tests:[{id:'t1',title:'اختبار كمي'}] },
+      { id:2, title:'دورة اللغة العربية', price:99, image:'https://placehold.co/800x500?text=عربي', desc:'تحسين المهارات اللغوية واختبارات لفظية مكثفة.', duration:'8 ساعات', saleState:'after', what:['قواعد','قراءة','تمارين لفظي'], tests:[{id:'t2',title:'اختبار لفظي'}] },
+      { id:3, title:'دورة الرياضيات المتقدمة', price:149, image:'https://placehold.co/800x500?text=رياضيات', desc:'دورة تغطي مفاهيم رياضية متقدمة مع حل مسائل.', duration:'10 ساعات', saleState:'before', what:['جبر','هندسة','إحصاء'], tests:[] }
+    ];
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+  }
 
   let courseButtons = JSON.parse(localStorage.getItem('courseButtons') || '[]');
   let adminQuestions = JSON.parse(localStorage.getItem('adminQuestions') || '[]');
   let sales = JSON.parse(localStorage.getItem('sales') || '[]');
+  let newsImages = JSON.parse(localStorage.getItem('newsImages') || '[]');
 
   /*********************
    * Utilities & routing
    *********************/
-  function goHome(){ document.getElementById('courses').scrollIntoView(); showSection('home'); }
+  function goHome(){ showSection('home'); document.getElementById('courses').scrollIntoView(); }
   function goToMyCourses(){ renderMyCourses(); showSection('myCourses'); }
   function showSection(s){
     document.getElementById('courses').style.display = (s==='home' ? 'block':'none');
@@ -292,20 +289,20 @@
   }
 
   /*********************
-   * Render courses
+   * Render courses (no search)
    *********************/
   function renderCourses(){
     const container = document.getElementById('coursesContainer');
-    const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
     container.innerHTML = '';
-    courses.filter(c => !q || c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)).forEach(c=>{
+    courses.forEach(c=>{
       const el = document.createElement('div');
       el.className = 'bg-white rounded-lg overflow-hidden card-shadow';
       el.innerHTML = `
-        <img src="${c.image}" class="w-full h-40 object-cover" />
+        <img src="${c.image}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/800x500?text=image+not+found';" />
         <div class="p-4">
           <h3 class="font-semibold text-lg">${c.title}</h3>
           <p class="text-sm text-gray-600 mt-2 line-clamp-3">${c.desc}</p>
+          <div class="mt-2 text-xs text-gray-500">الحالة: ${c.saleState === 'before' ? 'قبل العرض' : 'بعد العرض'}</div>
           <div class="mt-4 flex items-center justify-between">
             <div><span class="text-xl font-bold">${c.price}</span> <span class="text-sm text-gray-500">ر.س</span></div>
             <div class="flex gap-2">
@@ -326,8 +323,8 @@
     document.getElementById('detailDesc').innerText = c.desc;
     document.getElementById('detailPrice').innerText = c.price + ' ر.س';
     document.getElementById('detailDuration').innerText = c.duration;
-    const what = document.getElementById('detailWhat'); what.innerHTML = ''; c.what.forEach(i=> what.innerHTML+=`<li>${i}</li>`);
-    const tests = document.getElementById('detailTests'); tests.innerHTML = ''; c.tests.forEach(t=> { let b = document.createElement('button'); b.className='px-3 py-1 border rounded text-sm'; b.innerText = t.title; tests.appendChild(b); });
+    const what = document.getElementById('detailWhat'); what.innerHTML = ''; (c.what||[]).forEach(i=> what.innerHTML+=`<li>${i}</li>`);
+    document.getElementById('detailSaleState').innerText = c.saleState === 'before' ? 'قبل العرض' : 'بعد العرض';
     document.getElementById('courseDetail').classList.remove('hidden'); document.getElementById('courseDetail').style.display='flex';
     document.getElementById('courseDetail').dataset.courseId = id;
   }
@@ -337,10 +334,10 @@
    * Purchase flow (simulated)
    *********************/
   function quickBuy(id){
-    const sale = { id: Date.now(), courseId:id, amount: courses.find(c=>c.id===id).price, status:'paid', at: Date.now(), user: getCurrentUser() ? getCurrentUser().email : 'guest' };
+    const cobj = courses.find(c=>c.id===id);
+    const sale = { id: Date.now(), courseId:id, amount: cobj.price, status:'paid', at: Date.now(), user: getCurrentUser() ? getCurrentUser().email : 'guest' };
     sales.push(sale); localStorage.setItem('sales', JSON.stringify(sales));
     let my = JSON.parse(localStorage.getItem('myCourses') || '[]');
-    // prevent duplicates
     if(!my.find(m=>m.courseId===id)) my.push({ courseId:id, purchasedAt: Date.now()});
     localStorage.setItem('myCourses', JSON.stringify(my));
     renderCourseButtons(); renderSales();
@@ -376,35 +373,149 @@
       el.innerHTML = `<div><div class="font-semibold">${b.title}</div><div class="text-sm text-gray-500">${b.url}</div></div><div class="flex gap-2"><a target="_blank" href="${b.url}" class="px-3 py-2 btn-primary rounded text-sm">افتح</a></div>`;
       wrap.appendChild(el);
     });
-    renderAdminButtonsList();
   }
 
-  function addCourseButton(){
-    const title = document.getElementById('newBtnTitle').value.trim();
-    const url = document.getElementById('newBtnUrl').value.trim();
-    if(!title || !url){ alert('أدخل عنوانًا ورابطًا'); return; }
-    courseButtons.push({ title, url });
-    localStorage.setItem('courseButtons', JSON.stringify(courseButtons));
-    renderCourseButtons();
-    document.getElementById('newBtnTitle').value=''; document.getElementById('newBtnUrl').value='';
-  }
-  function clearCourseButtons(){ if(!confirm('مسح جميع الأزرار؟')) return; courseButtons=[]; localStorage.setItem('courseButtons','[]'); renderCourseButtons(); }
+  /*********************
+   * Admin: Courses CRUD
+   *********************/
+  function adminAddCourse(){
+    // read form
+    const title = document.getElementById('cTitle').value.trim();
+    const price = parseFloat(document.getElementById('cPrice').value || 0);
+    const desc = document.getElementById('cDesc').value.trim();
+    const duration = document.getElementById('cDuration').value.trim();
+    const url = document.getElementById('cImageUrl').value.trim();
+    const fileInput = document.getElementById('cImageFile');
+    const saleState = document.getElementById('cSaleState').value;
 
-  function renderAdminButtonsList(){
-    const list = document.getElementById('adminButtonsList'); list.innerHTML='';
-    courseButtons.forEach((b,i)=>{
-      const row = document.createElement('div'); row.className='flex items-center justify-between gap-3';
-      row.innerHTML = `<div class="text-sm">${b.title} <div class="text-xs text-gray-500">${b.url}</div></div><div class="flex gap-2"><button class="px-3 py-1 border rounded" onclick="removeButton(${i})">حذف</button></div>`;
+    if(!title){ alert('أدخل عنوان الدورة'); return; }
+
+    // handle file => convert to dataURL if provided
+    if(fileInput.files && fileInput.files[0]){
+      const f = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const dataUrl = e.target.result;
+        pushCourseToList({ title, price, desc, duration, image: dataUrl, saleState });
+      };
+      reader.readAsDataURL(f);
+    } else {
+      // use url or placeholder
+      pushCourseToList({ title, price, desc, duration, image: url || 'https://placehold.co/800x500?text=new+course', saleState });
+    }
+  }
+
+  function pushCourseToList(courseObj){
+    // if editing (we store editing id in form dataset)
+    const editingId = document.getElementById('cTitle').dataset.editing;
+    if(editingId){
+      const idx = courses.findIndex(c=>c.id==editingId);
+      if(idx>-1){
+        courses[idx] = { ...courses[idx], ...courseObj };
+        alert('تم حفظ التعديل على الدورة');
+      }
+      delete document.getElementById('cTitle').dataset.editing;
+    } else {
+      const newId = Date.now();
+      courses.push({ id:newId, title:courseObj.title, price:courseObj.price||0, desc:courseObj.desc||'', duration:courseObj.duration||'', image:courseObj.image, saleState:courseObj.saleState||'before', what:[], tests:[] });
+      alert('تم إضافة الدورة');
+    }
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+    adminClearCourseForm();
+    renderCourses();
+    renderAdminCoursesList();
+  }
+
+  function adminClearCourseForm(){
+    document.getElementById('cTitle').value=''; document.getElementById('cPrice').value=''; document.getElementById('cDesc').value=''; document.getElementById('cDuration').value=''; document.getElementById('cImageUrl').value=''; document.getElementById('cImageFile').value=''; document.getElementById('cSaleState').value='before';
+    delete document.getElementById('cTitle').dataset.editing;
+  }
+
+  function renderAdminCoursesList(){
+    const list = document.getElementById('adminCoursesList'); list.innerHTML='';
+    courses.slice().reverse().forEach((c)=>{
+      const row = document.createElement('div'); row.className='p-3 border rounded flex items-center justify-between';
+      row.innerHTML = `<div class="flex items-center gap-3"><img src="${c.image}" class="thumb" onerror="this.src='https://placehold.co/120x80?text=NA'"><div><div class="font-semibold">${c.title}</div><div class="text-xs text-gray-500">السعر: ${c.price} ر.س — الحالة: ${c.saleState==='before' ? 'قبل العرض' : 'بعد العرض'}</div></div></div>
+        <div class="flex flex-col gap-2">
+          <button class="px-3 py-1 border rounded text-sm" onclick="adminEditCourse(${c.id})">تعديل</button>
+          <button class="px-3 py-1 border rounded text-sm" onclick="adminDeleteCourse(${c.id})">حذف</button>
+        </div>`;
       list.appendChild(row);
     });
   }
-  function removeButton(idx){ courseButtons.splice(idx,1); localStorage.setItem('courseButtons', JSON.stringify(courseButtons)); renderCourseButtons(); }
+
+  function adminEditCourse(id){
+    const c = courses.find(x=>x.id===id);
+    if(!c) return;
+    document.getElementById('cTitle').value = c.title; document.getElementById('cPrice').value = c.price; document.getElementById('cDesc').value=c.desc; document.getElementById('cDuration').value=c.duration; document.getElementById('cImageUrl').value = c.image; document.getElementById('cSaleState').value = c.saleState;
+    document.getElementById('cTitle').dataset.editing = c.id;
+    window.scrollTo({ top: document.getElementById('adminPanel').offsetTop, behavior:'smooth' });
+  }
+
+  function adminDeleteCourse(id){
+    if(!confirm('هل تأكد أنك تريد حذف هذه الدورة؟')) return;
+    courses = courses.filter(c=>c.id!==id);
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+    renderCourses(); renderAdminCoursesList();
+    alert('تم الحذف');
+  }
 
   /*********************
-   * Admin questions management
+   * News images manager (local files or URL)
+   *********************/
+  function addNewsImageFromFile(){
+    const finput = document.getElementById('newsFile');
+    if(!finput.files || !finput.files[0]){ alert('اختر ملفًا أولًا'); return; }
+    const f = finput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const dataUrl = e.target.result;
+      newsImages.push({ id: Date.now(), src: dataUrl });
+      localStorage.setItem('newsImages', JSON.stringify(newsImages));
+      renderNewsList();
+      finput.value = '';
+    };
+    reader.readAsDataURL(f);
+  }
+
+  function addNewsImageFromUrl(){
+    const url = document.getElementById('newsUrl').value.trim();
+    if(!url){ alert('ضع رابطًا'); return; }
+    newsImages.push({ id: Date.now(), src: url });
+    localStorage.setItem('newsImages', JSON.stringify(newsImages));
+    renderNewsList();
+    document.getElementById('newsUrl').value='';
+  }
+
+  function renderNewsList(){
+    const wrap = document.getElementById('newsList'); wrap.innerHTML='';
+    if(!newsImages.length){ wrap.innerHTML = '<div class="text-gray-600">لا توجد صور أخبار مضافة بعد.</div>'; return; }
+    newsImages.slice().reverse().forEach(img=>{
+      const el = document.createElement('div'); el.className='p-2 border rounded flex items-center justify-between gap-2';
+      el.innerHTML = `<img src="${img.src}" class="thumb" onerror="this.src='https://placehold.co/120x80?text=NA'"><div class="flex flex-col gap-2"><button class="px-3 py-1 border rounded text-sm" onclick='viewImage("${img.src.replace(/"/g,'&quot;')}")'>عرض</button><button class="px-3 py-1 border rounded text-sm" onclick="removeNewsImage(${img.id})">حذف</button></div>`;
+      wrap.appendChild(el);
+    });
+  }
+
+  function removeNewsImage(id){
+    if(!confirm('حذف هذه الصورة؟')) return;
+    newsImages = newsImages.filter(i=>i.id!==id);
+    localStorage.setItem('newsImages', JSON.stringify(newsImages));
+    renderNewsList();
+  }
+
+  function viewImage(src){
+    // عرض بسيط في نافذة جديدة
+    const w = window.open('');
+    w.document.write(`<img src="${src}" style="max-width:100%;height:auto" />`);
+  }
+
+  /*********************
+   * Admin questions & sales (existing)
    *********************/
   function renderAdminQuestions(){
-    const list = document.getElementById('adminQuestionsList'); list.innerHTML='';
+    const list = document.getElementById('adminQuestionsList'); if(!list) return;
+    list.innerHTML='';
     adminQuestions.forEach((q,i)=>{
       const el = document.createElement('div'); el.className='p-3 border rounded flex items-start justify-between';
       el.innerHTML = `<div><div class="font-semibold">${q.testName}</div><div class="text-sm mt-1">${q.text}</div><div class="mt-2 text-xs text-gray-500">الخيارات: ${q.options.join(' | ')}</div><div class="mt-2"><span class="correct-badge">الإجابة: خيار ${parseInt(q.correct)+1}</span> <span class="text-xs text-gray-500 ml-2">وقت: ${q.time || 'مفتوح'}</span></div></div><div><button class="px-3 py-1 border rounded" onclick="removeQuestion(${i})">حذف</button></div>`;
@@ -414,14 +525,13 @@
   function addQuestion(){
     const testName = document.getElementById('qTest').value.trim() || 'عام';
     const text = document.getElementById('qText').value.trim(); 
-    const options = [document.getElementById('opt1').value, document.getElementById('opt2').value, document.getElementById('opt3').value, document.getElementById('opt4').value].map(s=>s||'—');
+    const options = [document.getElementById('opt1').value,document.getElementById('opt2').value,document.getElementById('opt3').value,document.getElementById('opt4').value].map(s=>s||'—');
     const correct = document.getElementById('correctIndex').value;
     const time = document.getElementById('qTime').value || null;
     if(!text){ alert('أدخل نص السؤال'); return; }
     adminQuestions.push({ testName, text, options, correct, time });
     localStorage.setItem('adminQuestions', JSON.stringify(adminQuestions));
     renderAdminQuestions();
-    document.getElementById('qText').value=''; document.getElementById('opt1').value=''; document.getElementById('opt2').value=''; document.getElementById('opt3').value=''; document.getElementById('opt4').value='';
   }
   function clearQuestions(){ if(!confirm('مسح جميع الأسئلة؟')) return; adminQuestions=[]; localStorage.setItem('adminQuestions','[]'); renderAdminQuestions(); }
   function removeQuestion(i){ adminQuestions.splice(i,1); localStorage.setItem('adminQuestions', JSON.stringify(adminQuestions)); renderAdminQuestions(); }
@@ -462,7 +572,6 @@
     }
   }
 
-  // show register form inside modal
   function showRegisterForm(){
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
@@ -484,17 +593,14 @@
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     if(users.find(u=>u.email===email)){ alert('هذا البريد مسجل بالفعل'); return; }
 
-    // role decision based on admin code
     let role = 'student';
     if(adminCode && adminCode === ADMIN_CODE){
       role = 'admin';
     }
-
     const newUser = { email, username, pass, role };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     alert('تم إنشاء الحساب بنجاح. الدور: ' + role);
-    // auto-login
     setCurrentUser(newUser);
     closeAuth();
     if(role === 'admin') showAdminPanel();
@@ -513,7 +619,7 @@
     const cur = getCurrentUser();
     if(!cur || cur.role!=='admin'){ alert('مساحة المشرفين مقفلة — سجّل كمشرف لعرضها'); return; }
     showSection('admin'); document.getElementById('adminPanel').classList.remove('hidden');
-    renderAdminButtonsList(); renderAdminQuestions(); renderSales();
+    renderAdminButtonsList(); renderAdminQuestions(); renderSales(); renderAdminCoursesList(); renderNewsList();
   }
 
   // bindings
@@ -525,16 +631,10 @@
   renderCourseButtons();
   renderAdminQuestions();
   renderSales();
+  renderAdminCoursesList();
+  renderNewsList();
   updateAuthUI();
 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
