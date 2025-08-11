@@ -16,6 +16,27 @@
     .hidden { display:none; }
     .thumb { width:120px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb; }
   </style>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB4_41AcIGnlxFVT7XYGfFFCtGQZmFj0tI",
+  authDomain: "tawiq-f8d65.firebaseapp.com",
+  databaseURL: "https://tawiq-f8d65-default-rtdb.firebaseio.com",
+  projectId: "tawiq-f8d65",
+  storageBucket: "tawiq-f8d65.firebasestorage.app",
+  messagingSenderId: "47258312484",
+  appId: "1:47258312484:web:588d01bd2d7fd560e49db1",
+  measurementId: "G-4JXWGDD0HY"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const analytics = firebase.analytics();
+const db = firebase.database();
+</script>
+
 </head>
 <body class="antialiased">
   <!-- NAVBAR -->
@@ -685,6 +706,7 @@
   </footer>
 </footer>
 </html>
+
 
 
 
