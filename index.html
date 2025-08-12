@@ -37,6 +37,11 @@ const analytics = firebase.analytics();
 const db = firebase.database();
 </script>
 
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 </head>
 <body class="antialiased">
   <!-- NAVBAR -->
@@ -695,6 +700,466 @@ const db = firebase.database();
   updateAuthUI();
 
 </script>
+
+
+<div id="adminPanel" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;box-shadow:-2px 0 5px rgba(0,0,0,0.3);padding:10px;z-index:9000;overflow:auto;">
+  <h3 style="text-align:center;">🛠️ قائمة المشرفين</h3>
+  <div style="display:flex;gap:5px;justify-content:space-around;margin-bottom:10px;">
+    <button onclick="openTab('coursesTab')">📝 الدورات</button>
+    <button onclick="openTab('newsTab')">🖼️ الأخبار</button>
+    <button onclick="openTab('buttonsTab')">🔘 الكورسات</button>
+    <button onclick="openTab('questionsTab')">❓ الأسئلة</button>
+    <button onclick="openTab('salesTab')">💰 المبيعات</button>
+  </div>
+  <div id="coursesTab" class="adminTab" style="display:none;">
+    <h4>إدارة الدورات</h4>
+    <div id="coursesList"></div>
+    <input type="text" id="newCourseName" placeholder="اسم الدورة">
+    <button onclick="addCourse()">➕ إضافة</button>
+  </div>
+  <div id="newsTab" class="adminTab" style="display:none;">
+    <h4>إدارة صور الأخبار</h4>
+    <div id="newsList"></div>
+    <input type="text" id="newNewsURL" placeholder="رابط الصورة">
+    <button onclick="addNews()">➕ إضافة</button>
+  </div>
+  <div id="buttonsTab" class="adminTab" style="display:none;">
+    <h4>إدارة أزرار الكورسات</h4>
+    <div id="buttonsList"></div>
+    <input type="text" id="newButtonName" placeholder="اسم الزر">
+    <button onclick="addButton()">➕ إضافة</button>
+  </div>
+  <div id="questionsTab" class="adminTab" style="display:none;">
+    <h4>إدارة الأسئلة</h4>
+    <div id="questionsList"></div>
+    <input type="text" id="newQuestion" placeholder="السؤال">
+    <button onclick="addQuestion()">➕ إضافة</button>
+  </div>
+  <div id="salesTab" class="adminTab" style="display:none;">
+    <h4>إدارة المبيعات</h4>
+    <div id="salesList"></div>
+  </div>
+</div>
+
+<button id="adminToggleBtn" style="display:none;position:fixed;top:20px;right:20px;z-index:9001;">قائمة المشرفين</button>
+
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB4_41AcIGnlxFVT7XYGfFFCtGQZmFj0tI",
+  authDomain: "tawiq-f8d65.firebaseapp.com",
+  projectId: "tawiq-f8d65",
+  storageBucket: "tawiq-f8d65.firebasestorage.app",
+  messagingSenderId: "47258312484",
+  appId: "1:47258312484:web:588d01bd2d7fd560e49db1",
+  measurementId: "G-4JXWGDD0HY"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let isRegister = false;
+document.getElementById('toggleAuth').onclick = () => {
+  isRegister = !isRegister;
+  document.getElementById('authTitle').innerText = isRegister ? 'إنشاء حساب' : 'تسجيل دخول';
+  document.getElementById('authAction').innerText = isRegister ? 'إنشاء حساب' : 'تسجيل دخول';
+  document.getElementById('adminCode').style.display = isRegister ? 'block' : 'none';
+  document.getElementById('toggleAuth').innerText = isRegister ? 'لديك حساب؟ تسجيل دخول' : 'إنشاء حساب جديد';
+};
+
+document.getElementById('authAction').onclick = () => {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('password').value;
+  const adminCode = document.getElementById('adminCode').value;
+  if (isRegister) {
+    auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+      db.ref('profiles/' + cred.user.uid).set({email: email});
+      if (adminCode === 'moshrif192837465') {
+        db.ref('admins/' + cred.user.uid).set(true);
+      }
+    }).catch(alert);
+  } else {
+    auth.signInWithEmailAndPassword(email, pass).catch(alert);
+  }
+};
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('authModal').style.display = 'none';
+    db.ref('admins/' + user.uid).once('value').then(snap => {
+      if (snap.val()) {
+        document.getElementById('adminToggleBtn').style.display = 'block';
+      }
+    });
+  } else {
+    document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('adminToggleBtn').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
+
+document.getElementById('adminToggleBtn').onclick = () => {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+};
+</script>
+
+
+<script>
+function openTab(tabId) {
+  document.querySelectorAll('.adminTab').forEach(tab => tab.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+}
+
+// Courses
+function loadCourses() {
+  firebase.database().ref('courses').on('value', snap => {
+    const list = document.getElementById('coursesList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key].name || 'بدون اسم';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه الدورة؟')) {
+          firebase.database().ref('courses/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addCourse() {
+  const name = document.getElementById('newCourseName').value;
+  if (!name) return alert('أدخل اسم الدورة');
+  const key = firebase.database().ref().child('courses').push().key;
+  firebase.database().ref('courses/' + key).set({name});
+  document.getElementById('newCourseName').value = '';
+}
+
+// News
+function loadNews() {
+  firebase.database().ref('newsImages').on('value', snap => {
+    const list = document.getElementById('newsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.innerHTML = '<img src="'+data[key]+'" style="width:50px;height:50px;">';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+          firebase.database().ref('newsImages/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addNews() {
+  const url = document.getElementById('newNewsURL').value;
+  if (!url) return alert('أدخل رابط الصورة');
+  const key = firebase.database().ref().child('newsImages').push().key;
+  firebase.database().ref('newsImages/' + key).set(url);
+  document.getElementById('newNewsURL').value = '';
+}
+
+// Buttons
+function loadButtons() {
+  firebase.database().ref('courseButtons').on('value', snap => {
+    const list = document.getElementById('buttonsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key];
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذا الزر؟')) {
+          firebase.database().ref('courseButtons/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addButton() {
+  const name = document.getElementById('newButtonName').value;
+  if (!name) return alert('أدخل اسم الزر');
+  const key = firebase.database().ref().child('courseButtons').push().key;
+  firebase.database().ref('courseButtons/' + key).set(name);
+  document.getElementById('newButtonName').value = '';
+}
+
+// Questions
+function loadQuestions() {
+  firebase.database().ref('adminQuestions').on('value', snap => {
+    const list = document.getElementById('questionsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key];
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+          firebase.database().ref('adminQuestions/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addQuestion() {
+  const q = document.getElementById('newQuestion').value;
+  if (!q) return alert('أدخل السؤال');
+  const key = firebase.database().ref().child('adminQuestions').push().key;
+  firebase.database().ref('adminQuestions/' + key).set(q);
+  document.getElementById('newQuestion').value = '';
+}
+
+// Sales
+function loadSales() {
+  firebase.database().ref('sales').on('value', snap => {
+    const list = document.getElementById('salesList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = JSON.stringify(data[key]);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه العملية؟')) {
+          firebase.database().ref('sales/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+
+// Load data when opening tabs
+document.getElementById('adminToggleBtn').addEventListener('click', () => {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+
+</script>
+
+
+<style>
+/* Toast styles */
+#toastContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 12000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.toast {
+  background: rgba(17,24,39,0.95);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(16,24,40,0.2);
+  transform-origin: bottom right;
+  animation: toastIn 240ms ease;
+  font-size: 14px;
+}
+@keyframes toastIn {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.loading-badge {
+  display:inline-block;
+  padding:4px 8px;
+  background:#f3f4f6;
+  color:#374151;
+  border-radius:6px;
+  font-size:13px;
+  margin-left:8px;
+}
+</style>
+<div id="toastContainer"></div>
+<script>
+function showToast(msg, timeout=3000) {
+  const container = document.getElementById('toastContainer');
+  if(!container) return;
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerText = msg;
+  container.appendChild(t);
+  setTimeout(()=> {
+    t.style.transition = 'all 240ms ease';
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(8px) scale(0.98)';
+    setTimeout(()=> t.remove(), 260);
+  }, timeout);
+}
+
+/* Render helpers for site sections (read from DB via on) */
+
+function renderCoursesList(data) {
+  const container = document.getElementById('coursesContainer');
+  if(!container) return;
+  container.innerHTML = '';
+  if(!data) { container.innerHTML = '<div class="text-gray-600">لا توجد دورات بعد.</div>'; return; }
+  // if array-like or object
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'bg-white rounded-lg overflow-hidden card-shadow';
+    el.innerHTML = `
+      <img src="${c.image || 'https://placehold.co/800x500?text=image+not+found'}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/800x500?text=image+not+found';" />
+      <div class="p-4">
+        <h3 class="font-semibold text-lg">${c.title || c.name || 'بدون عنوان'}</h3>
+        <p class="text-sm text-gray-600 mt-2">${c.desc || ''}</p>
+        <div class="mt-2 text-xs text-gray-500">الحالة: ${ (c.saleState === 'before') ? 'قبل العرض' : (c.saleState === 'after' ? 'بعد العرض' : '—') }</div>
+        <div class="mt-4 flex items-center justify-between">
+          <div><span class="text-xl font-bold">${c.price || 0}</span> <span class="text-sm text-gray-500">ر.س</span></div>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border rounded text-sm" onclick="openDetail('${c.id || ''}')">تفاصيل</button>
+            <button class="px-3 py-1 btn-primary rounded text-sm" onclick="quickBuy('${c.id || ''}')">اشتري</button>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(el);
+  });
+}
+
+function renderNewsImages(data) {
+  const place = document.querySelector('#newsImagesPlace');
+  if(!place) return;
+  place.innerHTML='';
+  if(!data){ place.innerHTML = '<div class="text-gray-600">لا توجد أخبار بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(it => {
+    const img = document.createElement('img');
+    img.src = it.src || it;
+    img.style.width = '100%';
+    img.style.maxHeight = '200px';
+    img.style.objectFit = 'cover';
+    img.className = 'rounded card-shadow mb-3';
+    place.appendChild(img);
+  });
+}
+
+function renderCourseButtonsFront(data) {
+  const wrap = document.getElementById('courseButtons');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  if(!data){ wrap.innerHTML = '<div class="text-gray-600">لا توجد أزرار مُضافة بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(b => {
+    const el = document.createElement('div');
+    el.className='p-4 bg-white rounded-lg flex items-center justify-between card-shadow';
+    el.innerHTML = `<div><div class="font-semibold">${b.title || b}</div><div class="text-sm text-gray-500">${b.url || ''}</div></div><div class="flex gap-2"><a target="_blank" href="${b.url || '#'}" class="px-3 py-2 btn-primary rounded text-sm">افتح</a></div>`;
+    wrap.appendChild(el);
+  });
+}
+
+function renderQuestionsFront(data) {
+  const el = document.getElementById('publicQuestions');
+  if(!el) return;
+  el.innerHTML='';
+  if(!data){ el.innerHTML='<div class="text-gray-600">لا توجد أسئلة.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(q => {
+    const d = document.createElement('div');
+    d.className='p-3 border rounded mb-2';
+    d.innerHTML = `<div class="font-semibold">${q.testName || 'عام'}</div><div class="text-sm mt-1">${q.text || q}</div>`;
+    el.appendChild(d);
+  });
+}
+
+function renderSalesFront(data) {
+  const el = document.getElementById('salesFront');
+  if(!el) return;
+  el.innerHTML='';
+  if(!data){ el.innerHTML = '<div class="text-gray-600">لا توجد مبيعات بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between py-2 border-b';
+    row.innerText = (s.courseTitle || s.courseId || '') + ' — ' + (s.user || '' ) + ' — ' + (s.amount || '');
+    el.appendChild(row);
+  });
+}
+
+/* Attach realtime listeners to update UI and show toasts */
+(function attachRealtime() {
+  try {
+    const coursesRef = firebase.database().ref('courses');
+    const newsRef = firebase.database().ref('newsImages');
+    const buttonsRef = firebase.database().ref('courseButtons');
+    const qRef = firebase.database().ref('adminQuestions');
+    const salesRef = firebase.database().ref('sales');
+
+    const coursesLoadingBadge = document.createElement('span');
+    coursesLoadingBadge.className = 'loading-badge';
+    coursesLoadingBadge.id = 'coursesLoading';
+    coursesLoadingBadge.innerText = 'جاري التحميل...';
+    const coursesHeader = document.querySelector('#courses .text-2xl');
+    if(coursesHeader) coursesHeader.appendChild(coursesLoadingBadge);
+
+    coursesRef.on('value', snap => {
+      const data = snap.val();
+      renderCoursesList(data);
+      const badge = document.getElementById('coursesLoading');
+      if(badge) badge.remove();
+      showToast('تم تحديث الدورات');
+    });
+
+    const newsLoading = document.createElement('span');
+    newsLoading.className='loading-badge'; newsLoading.id='newsLoading'; newsLoading.innerText='جاري التحميل...';
+    const newsHeader = document.querySelector('#courses + div h3') || document.querySelector('h3.text-lg');
+    if(newsHeader) newsHeader.appendChild(newsLoading);
+
+    newsRef.on('value', snap => {
+      const data = snap.val();
+      renderNewsImages(data);
+      const badge = document.getElementById('newsLoading'); if(badge) badge.remove();
+      showToast('تم تحديث الأخبار');
+    });
+
+    buttonsRef.on('value', snap => {
+      const data = snap.val();
+      renderCourseButtonsFront(data);
+      showToast('تم تحديث أزرار الكورسات');
+    });
+
+    qRef.on('value', snap => {
+      const data = snap.val();
+      renderQuestionsFront(data);
+      showToast('تم تحديث الأسئلة');
+    });
+
+    salesRef.on('value', snap => {
+      const data = snap.val();
+      renderSalesFront(data);
+      showToast('تم تحديث المبيعات');
+    });
+  } catch(e) {
+    console.error('Realtime attach error', e);
+  }
+})();
+</script>
+
 </body>
 <footer style="background-color: green;">
   <footer  class="border-t mt-12">
@@ -706,7 +1171,6 @@ const db = firebase.database();
   </footer>
 </footer>
 </html>
-
 
 
 
