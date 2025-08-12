@@ -4,7 +4,55 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>طويق التعليمية — نموذج واجهة (معدّل)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+// === Admin code injection start ===
+function addAdmin(uid) {
+  firebase.database().ref('admins/' + uid).set(true);
+}
+
+function checkAdmin(uid) {
+  firebase.database().ref('admins/' + uid).once('value').then(snapshot => {
+    if (snapshot.val() === true) {
+      document.getElementById('adminPanel').style.display = 'block';
+    } else {
+      if (document.getElementById('adminPanel')) {
+        document.getElementById('adminPanel').style.display = 'none';
+      }
+    }
+  });
+}
+
+// Wrap original register/login to include admin code check
+const originalRegister = register;
+register = function() {
+  var adminCode = document.getElementById('adminCode') ? document.getElementById('adminCode').value : '';
+  originalRegister();
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      if (adminCode === "moshrif192837465") {
+        addAdmin(user.uid);
+      }
+      checkAdmin(user.uid);
+    }
+  });
+};
+
+const originalLogin = login;
+login = function() {
+  var adminCode = document.getElementById('adminCode') ? document.getElementById('adminCode').value : '';
+  originalLogin();
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      if (adminCode === "moshrif192837465") {
+        addAdmin(user.uid);
+      }
+      checkAdmin(user.uid);
+    }
+  });
+};
+// === Admin code injection end ===
+
+</script>
   <style>
     :root{ --primary:#55AB77; --text:#111111; --muted:#6b7280; }
     body { font-family: 'Tajawal', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); background:#fff; }
