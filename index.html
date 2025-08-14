@@ -1,1094 +1,1217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tawiq Redux - All Code</title>
-    <style>
-        body {
-            font-family: 'PT Sans', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-            direction: ltr;
-        }
-        h1, h2 {
-            color: #333;
-            border-bottom: 2px solid #3CB371;
-            padding-bottom: 10px;
-        }
-        h2 {
-            margin-top: 40px;
-            font-family: monospace;
-            background: #e0e0e0;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        pre {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-x: auto;
-        }
-        code {
-            font-family: 'Courier New', Courier, monospace;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>طويق التعليمية — نموذج واجهة (معدّل)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{ --primary:#55AB77; --text:#111111; --muted:#6b7280; }
+    body { font-family: 'Tajawal', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); background:#fff; }
+    .brand { color:var(--primary); font-weight:800; letter-spacing:1px; }
+    .card-shadow { box-shadow: 0 6px 20px rgba(16,24,40,0.06); }
+    .btn-primary { background:var(--primary); color:white; }
+    .btn-primary:hover { background:#449a63; }
+    .correct-badge { background:var(--primary); color:#fff; padding:3px 8px; border-radius:999px; font-size:12px; }
+    .hidden { display:none; }
+    .thumb { width:120px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb; }
+  </style>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB4_41AcIGnlxFVT7XYGfFFCtGQZmFj0tI",
+  authDomain: "tawiq-f8d65.firebaseapp.com",
+  databaseURL: "https://tawiq-f8d65-default-rtdb.firebaseio.com",
+  projectId: "tawiq-f8d65",
+  storageBucket: "tawiq-f8d65.firebasestorage.app",
+  messagingSenderId: "47258312484",
+  appId: "1:47258312484:web:588d01bd2d7fd560e49db1",
+  measurementId: "G-4JXWGDD0HY"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const analytics = firebase.analytics();
+const db = firebase.database();
+</script>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 </head>
-<body>
-    <h1>Tawiq Redux - شيفرة المشروع الكاملة</h1>
-
-    <h2>package.json</h2>
-    <pre><code>
-{
-  "name": "nextn",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack -p 9002",
-    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@genkit-ai/googleai": "^1.14.1",
-    "@genkit-ai/next": "^1.14.1",
-    "@hookform/resolvers": "^4.1.3",
-    "@radix-ui/react-accordion": "^1.2.3",
-    "@radix-ui/react-alert-dialog": "^1.1.6",
-    "@radix-ui/react-avatar": "^1.1.3",
-    "@radix-ui/react-checkbox": "^1.1.4",
-    "@radix-ui/react-collapsible": "^1.1.11",
-    "@radix-ui/react-dialog": "^1.1.6",
-    "@radix-ui/react-dropdown-menu": "^2.1.6",
-    "@radix-ui/react-label": "^2.1.2",
-    "@radix-ui/react-menubar": "^1.1.6",
-    "@radix-ui/react-popover": "^1.1.6",
-    "@radix-ui/react-progress": "^1.1.2",
-    "@radix-ui/react-radio-group": "^1.2.3",
-    "@radix-ui/react-scroll-area": "^1.2.3",
-    "@radix-ui/react-select": "^2.1.6",
-    "@radix-ui/react-separator": "^1.1.2",
-    "@radix-ui/react-slider": "^1.2.3",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-switch": "^1.1.3",
-    "@radix-ui/react-tabs": "^1.1.3",
-    "@radix-ui/react-toast": "^1.2.6",
-    "@radix-ui/react-tooltip": "^1.1.8",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "date-fns": "^3.6.0",
-    "dotenv": "^16.5.0",
-    "embla-carousel-react": "^8.6.0",
-    "firebase": "^11.9.1",
-    "firebase-admin": "^12.1.0",
-    "genkit": "^1.14.1",
-    "lucide-react": "^0.475.0",
-    "next": "15.3.3",
-    "patch-package": "^8.0.0",
-    "react": "^18.3.1",
-    "react-day-picker": "^8.10.1",
-    "react-dom": "^18.3.1",
-    "react-hook-form": "^7.54.2",
-    "recharts": "^2.15.1",
-    "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "genkit-cli": "^1.14.1",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
-}
-    </code></pre>
-
-    <h2>next.config.ts</h2>
-    <pre><code>
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-};
-
-export default nextConfig;
-    </code></pre>
-
-    <h2>tailwind.config.ts</h2>
-    <pre><code>
-import type {Config} from 'tailwindcss';
-
-export default {
-  darkMode: ['class'],
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    container: {
-      center: true,
-      padding: '2rem',
-      screens: {
-        '2xl': '1400px',
-      },
-    },
-    extend: {
-      fontFamily: {
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['PT Sans', 'sans-serif'],
-        code: ['monospace'],
-      },
-      colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
-        },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
-        },
-        sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
-          foreground: 'hsl(var(--sidebar-foreground))',
-          primary: 'hsl(var(--sidebar-primary))',
-          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-          accent: 'hsl(var(--sidebar-accent))',
-          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))',
-          ring: 'hsl(var(--sidebar-ring))',
-        },
-      },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
-      keyframes: {
-        'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-        },
-        'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
-        },
-      },
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
-      },
-    },
-  },
-  plugins: [require('tailwindcss-animate')],
-} satisfies Config;
-    </code></pre>
-
-    <h2>src/app/globals.css</h2>
-    <pre><code>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  font-family: 'PT Sans', sans-serif;
-}
-
-@layer base {
-  :root {
-    --background: 140 71% 92%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 140 71% 92%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 140 71% 92%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 147 50% 47%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 197 71% 73%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 147 50% 47%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 147 50% 47%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 197 71% 73%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 147 50% 47%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html[dir="rtl"] {
-    direction: rtl;
-  }
-}
-    </code></pre>
-
-    <h2>src/app/layout.tsx</h2>
-    <pre><code>
-import type { Metadata } from 'next';
-import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
-
-export const metadata: Metadata = {
-  title: 'Tawiq Redux',
-  description: 'منصة طويق التعليمية',
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-body antialiased">
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
+<body class="antialiased">
+  <!-- NAVBAR -->
+  <nav class="bg-white border-b">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <img id="logo" src="https://i.ibb.co/Cpc7k6bM/Screenshot-2025-08-10-135424.png=طويق" alt="logo" class="h-10">
+        <div>
         </div>
-        <Toaster />
-      </body>
-    </html>
-  );
-}
-    </code></pre>
+      </div>
 
-    <h2>src/app/page.tsx</h2>
-    <pre><code>
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { CourseList } from '@/components/courses/course-list';
-import { getCourses, getNewsImages } from '@/app/actions';
-import Link from 'next/link';
+      <div class="hidden md:flex items-center gap-6">
+        <a href="https://t.me/tawiqKSA" class="text-sm text-gray-700 hover:text-black">تواصل</a>
+      </div>
 
-export default async function Home() {
-  const courses = await getCourses();
-  const newsImages = await getNewsImages();
-  
-  return (
-    <div className="container mx-auto px-6 py-8">
-      <header className="relative mb-12 flex items-center justify-center">
-        <div className="relative w-full max-w-6xl">
-          <Image
-            src="https://placehold.co/1200x500"
-            alt="Hero image"
-            width={1200}
-            height={500}
-            className="rounded-lg shadow-lg object-cover w-full"
-            data-ai-hint="education banner"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/30 rounded-lg"></div>
-          <div className="absolute bottom-10 flex w-full justify-center gap-x-8">
-            <Button asChild size="lg" className="text-lg font-bold px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105">
-              <a href="https://t.me/tawiqKSA" target="_blank" rel="noopener noreferrer">
-                القناة الرئيسية
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="secondary" className="text-lg font-bold px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105">
-              <Link href="/my-courses">
-                واجهة المشتركين
-              </Link>
-            </Button>
+      <div class="flex items-center gap-3">
+        <button id="btnLogin" class="text-sm px-4 py-2 border rounded hover:bg-gray-50">تسجيل/دخول</button>
+        <button id="btnDashboard" class="text-sm px-4 py-2 btn-primary rounded hidden">لوحة المشرف</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="container mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div>
+
+        <div class="mt-6 flex gap-3">
+        </div>
+      </div>
+
+     
+    </div>
+  </header>
+<center>
+  <div style="position: relative; display: inline-block;">
+  <!-- الصورة -->
+  <img src="https://i.ibb.co/35Pc5r1L/Whats-App-Image-2025-08-12-at-01-42-07-61c33bae.jpg" alt="صورة" style="display: block; max-width: 100%;">
+
+  <!-- زر القناة الرئيسية -->
+  <a href="https://t.me/tawiqKSA"
+     style="
+       position: absolute;
+       top: 78%;
+       right: 5%;
+       width: 160px;
+       height: 55px;
+       background: linear-gradient(to right, #15b39a, #00d084);
+       color: white;
+       font-family: Arial, sans-serif;
+       font-size: 20px;
+       font-weight: bold;
+       text-decoration: none;
+       border-radius: 30px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+     ">
+    القناة الرئيسية
+  </a>
+
+  <!-- زر واجهة المشتركين -->
+  <a href="https://example.com/subscribers"
+     style="
+       position: absolute;
+       top: 78%;
+       left: 5%;
+       width: 160px;
+       height: 55px;
+       background: linear-gradient(to right, #15b39a, #00d084);
+       color: white;
+       font-family: Arial, sans-serif;
+       font-size: 20px;
+       font-weight: bold;
+       text-decoration: none;
+       border-radius: 30px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+     ">
+    واجهة المشتركين
+  </a>
+</div>
+</center>
+  <!-- COURSES SECTION -->
+  <section id="courses" class="container mx-auto px-6 pb-12">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold">أحدث الدورات</h2>
+      <!-- تم حذف خانة البحث بحسب الطلب -->
+    </div>
+
+    <div id="coursesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- الصورة الثابتة المرسلة من المستخدم أسفل الدورات -->
+    <div class="mt-8">
+      <h3 class="text-lg font-semibold mb-3">صورة توضيحية</h3>
+      <img src="/mnt/data/4f66b722-edb6-45f6-8ab1-96e774620e20.jpg" alt="الاخبار" class="w-full rounded card-shadow" />
+      <!-- إذا لم تظهر الصورة لأن المسار محلي، سيتم استخدام رابط بديل -->
+      <noscript class="text-sm text-gray-500">قد تحتاج إلى تحميل الصورة محليًا على المسار أعلاه أو تعديل المسار ليتناسب مع بيئتك.</noscript>
+    </div>
+  </section>
+
+  <!-- COURSE DETAIL (modal/panel) -->
+  <div id="courseDetail" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-6">
+    <div class="bg-white rounded-lg w-full max-w-4xl overflow-hidden shadow-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 id="detailTitle" class="text-xl font-bold"></h3>
+        <button onclick="closeDetail()" class="px-6 py-2 border rounded text-sm">X إغلاق</button>
+      </div>
+      <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1">
+          <img id="detailImage" src="https://placehold.co/600x400" alt="" class="rounded-lg w-full">
+          <div class="mt-4">
+            <div class="text-2xl font-bold text-gray-800" id="detailPrice"></div>
+            <div class="text-sm text-gray-500">مدة الدورة: <span id="detailDuration">—</span></div>
+            <div class="mt-3">
+              <button class="w-full py-2 btn-primary rounded" onclick="buyCourse()">اشترِ الآن</button>
+            </div>
           </div>
         </div>
-      </header>
-      
-      <section id="courses" className="pb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-bold">أحدث الدورات</h2>
-        </div>
-        <CourseList courses={courses} />
-      </section>
+        <div class="lg:col-span-2">
+          <h4 class="font-semibold">الوصف</h4>
+          <p id="detailDesc" class="mt-2 text-gray-700"></p>
 
-      {newsImages.length > 0 && (
-        <section>
-          <h3 className="text-2xl font-semibold mb-4">آخر الأخبار</h3>
-          {newsImages.map((image) => (
-            <div key={image.id} className="mt-8">
-              <Image
-                src={image.src}
-                alt="الاخبار"
-                width={1200}
-                height={400}
-                className="w-full h-auto rounded-lg shadow-md object-cover"
-                data-ai-hint="news event"
-              />
+          <h4 class="font-semibold mt-6">ما ستتعلمه</h4>
+          <ul id="detailWhat" class="list-disc list-inside mt-2 text-gray-700"></ul>
+
+          <h4 class="font-semibold mt-6">الحالة</h4>
+          <div id="detailSaleState" class="mt-2 text-sm text-gray-600"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY COURSES (hidden panel) -->
+  <section id="myCourses" class="container mx-auto px-6 py-12 hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">دوراتي</h2>
+      <div>
+        <button onclick="goHome()" class="px-4 py-2 border rounded">العودة</button>
+      </div>
+    </div>
+
+    <div id="myCoursesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+  </section>
+
+  <!-- AFTER PAYMENT -->
+  <section id="postPayment" class="container mx-auto px-6 py-12 hidden">
+    <div class="bg-white p-6 rounded-lg card-shadow">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold">اكتمال الدفع — ابدأ الدورة الآن</h2>
+        <div>
+          <button class="px-4 py-2 rounded border" onclick="goHome()">العودة</button>
+        </div>
+      </div>
+
+      <p class="mt-3 text-gray-600">المحتويات التالية متاحة لك. يمكن للمشرف تعديلها من لوحة المشرف.</p>
+
+      <div id="courseButtons" class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN PANEL (UI-only) -->
+  <section id="adminPanel" class="container mx-auto px-6 py-12 hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">لوحة المشرف</h2>
+      <div>
+        <button onclick="goHome()" class="px-4 py-2 border rounded">خروج</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Courses manager -->
+      <div class="bg-white p-6 rounded-lg card-shadow">
+        <h3 class="font-semibold mb-4">إدارة الدورات</h3>
+
+        <div class="grid grid-cols-1 gap-2 mb-4">
+          <input id="cTitle" placeholder="عنوان الدورة" class="px-3 py-2 border rounded w-full" />
+          <input id="cPrice" type="number" min="0" placeholder="السعر (ر.س)" class="px-3 py-2 border rounded w-full" />
+          <textarea id="cDesc" placeholder="وصف الدورة" class="px-3 py-2 border rounded w-full"></textarea>
+          <input id="cDuration" placeholder="المدة (مثلاً: 10 ساعات)" class="px-3 py-2 border rounded w-full" />
+          <label class="text-sm">صورة الدورة (اختَر ملفًا من جهازك أو ضع رابطًا)</label>
+          <div class="flex gap-2">
+            <input id="cImageUrl" placeholder="رابط الصورة (URL)" class="px-3 py-2 border rounded w-full" />
+            <input id="cImageFile" type="file" accept="image/*" class="px-3 py-2 border rounded" />
+          </div>
+          <select id="cSaleState" class="px-3 py-2 border rounded w-full">
+            <option value="before">قبل العرض</option>
+            <option value="after">بعد العرض</option>
+          </select>
+
+          <div class="flex gap-2">
+            <button class="px-4 py-2 btn-primary rounded" onclick="adminAddCourse()">إضافة / حفظ</button>
+            <button class="px-4 py-2 border rounded" onclick="adminClearCourseForm()">مسح الحقول</button>
+          </div>
+        </div>
+
+        <div id="adminCoursesList" class="mt-4 space-y-2"></div>
+      </div>
+
+      <!-- News images manager -->
+      <div class="bg-white p-6 rounded-lg card-shadow">
+        <h3 class="font-semibold mb-4">إدارة صور الأخبار</h3>
+
+        <div class="mb-3">
+          <label class="text-sm">رفع صورة من جهازك</label>
+          <input id="newsFile" type="file" accept="image/*" class="mt-2" />
+        </div>
+        <div class="mb-3">
+          <label class="text-sm">أو ضع رابط صورة</label>
+          <input id="newsUrl" placeholder="رابط الصورة" class="px-3 py-2 border rounded w-full" />
+        </div>
+        <div class="flex gap-2">
+          <button class="px-4 py-2 btn-primary rounded" onclick="addNewsImageFromFile()">رفع من جهاز</button>
+          <button class="px-4 py-2 border rounded" onclick="addNewsImageFromUrl()">إضافة من رابط</button>
+        </div>
+
+        <div id="newsList" class="mt-4 grid grid-cols-2 gap-3"></div>
+      </div>
+    </div>
+
+    <!-- Sales preview -->
+    <div class="mt-8 bg-white p-6 rounded-lg card-shadow">
+      <h3 class="font-semibold mb-3">متابعة المبيعات (محاكاة)</h3>
+      <div id="salesList" class="text-sm text-gray-600">لا توجد مبيعات بعد.</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t mt-12">
+    <div class="container mx-auto px-6 py-6 text-center text-sm text-gray-600">
+      © 2025 طويق التعليمية — كل الحقوق محفوظة
+    </div>
+  </footer>
+
+  <!-- LOGIN / REGISTER MODAL (updated form) -->
+  <div id="authModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+      <div class="flex justify-between items-center">
+        <h3 id="authTitle" class="text-lg font-semibold">تسجيل الدخول</h3>
+        <button onclick="closeAuth()">✕</button>
+      </div>
+
+      <div id="authBody" class="mt-4">
+        <!-- LOGIN FORM -->
+        <form id="loginForm" onsubmit="event.preventDefault(); doLogin();">
+          <input id="authEmail" placeholder="البريد الإلكتروني أو اسم المستخدم" class="w-full px-3 py-2 border rounded mb-2" />
+          <input id="authPass" placeholder="كلمة المرور" type="password" class="w-full px-3 py-2 border rounded mb-2" />
+          <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 btn-primary rounded">دخول</button>
+            <button type="button" class="px-4 py-2 border rounded" onclick="showRegisterForm()">إنشاء حساب</button>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">تسجيل مبدئي باستخدام localStorage (نموذج فقط).</div>
+        </form>
+
+        <!-- REGISTER FORM (hidden initially) -->
+        <form id="registerForm" class="hidden" onsubmit="event.preventDefault(); doRegister();">
+          <input id="regEmail" placeholder="البريد الإلكتروني" class="w-full px-3 py-2 border rounded mb-2" required />
+          <input id="regUsername" placeholder="اسم المستخدم" class="w-full px-3 py-2 border rounded mb-2" required />
+          <input id="regPass" placeholder="كلمة المرور" type="password" class="w-full px-3 py-2 border rounded mb-2" required />
+          <input id="regAdminCode" placeholder="رمز المشرف (إذا وُجد)" class="w-full px-3 py-2 border rounded mb-2" />
+          <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 btn-primary rounded">إنشاء حساب</button>
+            <button type="button" class="px-4 py-2 border rounded" onclick="showLoginForm()">عودة للدخول</button>
+          </div>
+          <div class="mt-2 text-sm text-gray-500">إذا أدخلت رمز المشرف الصحيح سيتم منحك صلاحية مشرف.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /*********************
+   * Admin code value
+   *********************/
+  const ADMIN_CODE = 'moshrif192837465';
+
+  /*********************
+   * Load persisted data or defaults
+   *********************/
+  let courses = JSON.parse(localStorage.getItem('coursesData') || 'null');
+  if(!courses){
+    courses = [
+      { id:1, title:'دورة القياس المتقدم', price:199, image:'https://placehold.co/800x500?text=قياس', desc:'تحضير شامل لاختبار القياس مع اختبارات تجريبية.', duration:'12 ساعة', saleState:'before', what:['أساسيات القياس','أساليب حل الأسئلة','اختبارات زمنية'], tests:[{id:'t1',title:'اختبار كمي'}] },
+      { id:2, title:'دورة اللغة العربية', price:99, image:'https://placehold.co/800x500?text=عربي', desc:'تحسين المهارات اللغوية واختبارات لفظية مكثفة.', duration:'8 ساعات', saleState:'after', what:['قواعد','قراءة','تمارين لفظي'], tests:[{id:'t2',title:'اختبار لفظي'}] },
+      { id:3, title:'دورة الرياضيات المتقدمة', price:149, image:'https://placehold.co/800x500?text=رياضيات', desc:'دورة تغطي مفاهيم رياضية متقدمة مع حل مسائل.', duration:'10 ساعات', saleState:'before', what:['جبر','هندسة','إحصاء'], tests:[] }
+    ];
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+  }
+
+  let courseButtons = JSON.parse(localStorage.getItem('courseButtons') || '[]');
+  let adminQuestions = JSON.parse(localStorage.getItem('adminQuestions') || '[]');
+  let sales = JSON.parse(localStorage.getItem('sales') || '[]');
+  let newsImages = JSON.parse(localStorage.getItem('newsImages') || '[]');
+
+  /*********************
+   * Utilities & routing
+   *********************/
+  function goHome(){ showSection('home'); document.getElementById('courses').scrollIntoView(); }
+  function goToMyCourses(){ renderMyCourses(); showSection('myCourses'); }
+  function showSection(s){
+    document.getElementById('courses').style.display = (s==='home' ? 'block':'none');
+    document.getElementById('myCourses').classList.toggle('hidden', s!=='myCourses');
+    document.getElementById('postPayment').classList.toggle('hidden', s!=='postPayment');
+    document.getElementById('adminPanel').classList.toggle('hidden', s!=='admin');
+    if(s==='home' || s===undefined){ document.getElementById('courses').style.display='block'; document.getElementById('myCourses').classList.add('hidden'); document.getElementById('postPayment').classList.add('hidden'); document.getElementById('adminPanel').classList.add('hidden'); }
+  }
+
+  /*********************
+   * Render courses (no search)
+   *********************/
+  function renderCourses(){
+    const container = document.getElementById('coursesContainer');
+    container.innerHTML = '';
+    courses.forEach(c=>{
+      const el = document.createElement('div');
+      el.className = 'bg-white rounded-lg overflow-hidden card-shadow';
+      el.innerHTML = `
+        <img src="${c.image}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/800x500?text=image+not+found';" />
+        <div class="p-4">
+          <h3 class="font-semibold text-lg">${c.title}</h3>
+          <p class="text-sm text-gray-600 mt-2 line-clamp-3">${c.desc}</p>
+          <div class="mt-2 text-xs text-gray-500">الحالة: ${c.saleState === 'before' ? 'قبل العرض' : 'بعد العرض'}</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div><span class="text-xl font-bold">${c.price}</span> <span class="text-sm text-gray-500">ر.س</span></div>
+            <div class="flex gap-2">
+              <button class="px-3 py-1 border rounded text-sm" onclick="openDetail(${c.id})">تفاصيل</button>
+              <button class="px-3 py-1 btn-primary rounded text-sm" onclick="quickBuy(${c.id})">اشتري</button>
             </div>
-          ))}
-        </section>
-      )}
-    </div>
-  );
-}
-    </code></pre>
-
-    <h2>src/app/admin/page.tsx</h2>
-    <pre><code>
-import { getCurrentUser } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getCourses, getNewsImages } from '../actions';
-import { CoursesTable } from './_components/courses-table';
-import { NewsImagesTable } from './_components/news-images-table';
-
-export default async function AdminPage() {
-  const user = await getCurrentUser();
-  if (user?.role !== 'admin') {
-    redirect('/');
+          </div>
+        </div>`;
+      container.appendChild(el);
+    });
   }
 
-  const courses = await getCourses();
-  const newsImages = await getNewsImages();
+  function openDetail(id){
+    const c = courses.find(x=>x.id===id);
+    if(!c) return;
+    document.getElementById('detailTitle').innerText = c.title;
+    document.getElementById('detailImage').src = c.image;
+    document.getElementById('detailDesc').innerText = c.desc;
+    document.getElementById('detailPrice').innerText = c.price + ' ر.س';
+    document.getElementById('detailDuration').innerText = c.duration;
+    const what = document.getElementById('detailWhat'); what.innerHTML = ''; (c.what||[]).forEach(i=> what.innerHTML+=`<li>${i}</li>`);
+    document.getElementById('detailSaleState').innerText = c.saleState === 'before' ? 'قبل العرض' : 'بعد العرض';
+    document.getElementById('courseDetail').classList.remove('hidden'); document.getElementById('courseDetail').style.display='flex';
+    document.getElementById('courseDetail').dataset.courseId = id;
+  }
+  function closeDetail(){ document.getElementById('courseDetail').classList.add('hidden'); }
 
-  return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">لوحة المشرف</h1>
-      </div>
-      <Tabs defaultValue="courses" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="courses">إدارة الدورات</TabsTrigger>
-          <TabsTrigger value="news">إدارة صور الأخبار</TabsTrigger>
-        </TabsList>
-        <TabsContent value="courses">
-            <CoursesTable courses={courses} />
-        </TabsContent>
-        <TabsContent value="news">
-            <NewsImagesTable newsImages={newsImages} />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-}
-    </code></pre>
+  /*********************
+   * Purchase flow (simulated)
+   *********************/
+  function quickBuy(id){
+    const cobj = courses.find(c=>c.id===id);
+    const sale = { id: Date.now(), courseId:id, amount: cobj.price, status:'paid', at: Date.now(), user: getCurrentUser() ? getCurrentUser().email : 'guest' };
+    sales.push(sale); localStorage.setItem('sales', JSON.stringify(sales));
+    let my = JSON.parse(localStorage.getItem('myCourses') || '[]');
+    if(!my.find(m=>m.courseId===id)) my.push({ courseId:id, purchasedAt: Date.now()});
+    localStorage.setItem('myCourses', JSON.stringify(my));
+    renderCourseButtons(); renderSales();
+    showSection('postPayment');
+  }
+  function buyCourse(){ const id = parseInt(document.getElementById('courseDetail').dataset.courseId); quickBuy(id); }
 
-    <h2>src/app/my-courses/page.tsx</h2>
-    <pre><code>
-import { getCurrentUser } from '@/lib/auth';
-import { getUserPurchases, getCourseById, getCourses } from '@/app/actions';
-import { redirect } from 'next/navigation';
-import { Card, CardTitle } from '@/components/ui/card';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { SuggestedCourses } from '@/components/courses/suggested-courses';
+  /*********************
+   * My courses
+   *********************/
+  function renderMyCourses(){
+    const container = document.getElementById('myCoursesContainer');
+    container.innerHTML = '';
+    const my = JSON.parse(localStorage.getItem('myCourses') || '[]');
+    if(!my.length){ container.innerHTML = '<div class="text-gray-600">لم تشترِ أي دورات بعد.</div>'; return; }
+    my.forEach(entry=>{
+      const c = courses.find(x=>x.id===entry.courseId);
+      const el = document.createElement('div'); el.className='bg-white p-4 rounded-lg flex gap-4 items-center card-shadow';
+      el.innerHTML = `<img src="${c.image}" class="w-28 h-20 object-cover rounded"><div class="flex-1"><h4 class="font-semibold">${c.title}</h4><div class="text-sm text-gray-500">تم الشراء: ${new Date(entry.purchasedAt).toLocaleString()}</div></div><div><button class="px-3 py-2 btn-primary rounded" onclick="enterCourse(${c.id})">ابدأ الدورة</button></div>`;
+      container.appendChild(el);
+    });
+  }
+  function enterCourse(courseId){ renderCourseButtons(); showSection('postPayment'); }
 
-export default async function MyCoursesPage() {
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect('/');
+  /*********************
+   * Course Buttons (admin managed)
+   *********************/
+  function renderCourseButtons(){
+    const wrap = document.getElementById('courseButtons'); wrap.innerHTML = '';
+    if(!courseButtons.length){ wrap.innerHTML = '<div class="text-gray-600">لا توجد أزرار مُضافة بعد — اطلب من المشرف إضافتها.</div>'; return; }
+    courseButtons.forEach((b,idx)=>{
+      const el = document.createElement('div'); el.className='p-4 bg-white rounded-lg flex items-center justify-between card-shadow';
+      el.innerHTML = `<div><div class="font-semibold">${b.title}</div><div class="text-sm text-gray-500">${b.url}</div></div><div class="flex gap-2"><a target="_blank" href="${b.url}" class="px-3 py-2 btn-primary rounded text-sm">افتح</a></div>`;
+      wrap.appendChild(el);
+    });
   }
 
-  const purchases = await getUserPurchases(user.id);
-  const allCourses = await getCourses();
-  const myCourses = (await Promise.all(
-    purchases.map(p => getCourseById(p.courseId))
-  )).filter((c): c is NonNullable<typeof c> => c !== undefined);
+  /*********************
+   * Admin: Courses CRUD
+   *********************/
+  function adminAddCourse(){
+    // read form
+    const title = document.getElementById('cTitle').value.trim();
+    const price = parseFloat(document.getElementById('cPrice').value || 0);
+    const desc = document.getElementById('cDesc').value.trim();
+    const duration = document.getElementById('cDuration').value.trim();
+    const url = document.getElementById('cImageUrl').value.trim();
+    const fileInput = document.getElementById('cImageFile');
+    const saleState = document.getElementById('cSaleState').value;
 
-  return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">دوراتي</h1>
-      </div>
-      {myCourses.length === 0 ? (
-        <div className="text-center py-16 bg-card/50 rounded-lg">
-            <h2 className="text-2xl font-semibold">لم تشترِ أي دورات بعد</h2>
-            <p className="text-muted-foreground mt-2">تصفح دوراتنا وابدأ رحلتك التعليمية!</p>
-            <Button asChild className="mt-4">
-                <Link href="/">تصفح الدورات</Link>
-            </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {myCourses.map(course => (
-            <Card key={course.id} className="flex gap-4 p-4 items-center shadow-md">
-              <div className="relative w-28 h-20 rounded overflow-hidden flex-shrink-0">
-                  <Image src={course.image} alt={course.title} fill className="object-cover" data-ai-hint="course thumbnail" />
-              </div>
-              <div className="flex-grow">
-                <CardTitle className="text-lg">{course.title}</CardTitle>
-              </div>
-              <div>
-                <Button asChild>
-                  {/* In a real app this would link to the course content page */}
-                  <div className="cursor-pointer">ابدأ الدورة</div>
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-      
-      <SuggestedCourses allCourses={allCourses} purchases={purchases} />
-    </div>
-  );
-}
-    </code></pre>
+    if(!title){ alert('أدخل عنوان الدورة'); return; }
 
-    <h2>src/lib/types.ts</h2>
-    <pre><code>
-export interface Course {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  image: string;
-  duration: string;
-  saleState: 'before' | 'after';
-  whatToLearn: string[];
-}
+    // handle file => convert to dataURL if provided
+    if(fileInput.files && fileInput.files[0]){
+      const f = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const dataUrl = e.target.result;
+        pushCourseToList({ title, price, desc, duration, image: dataUrl, saleState });
+      };
+      reader.readAsDataURL(f);
+    } else {
+      // use url or placeholder
+      pushCourseToList({ title, price, desc, duration, image: url || 'https://placehold.co/800x500?text=new+course', saleState });
+    }
+  }
 
-export interface NewsImage {
-  id: string;
-  src: string;
-}
+  function pushCourseToList(courseObj){
+    // if editing (we store editing id in form dataset)
+    const editingId = document.getElementById('cTitle').dataset.editing;
+    if(editingId){
+      const idx = courses.findIndex(c=>c.id==editingId);
+      if(idx>-1){
+        courses[idx] = { ...courses[idx], ...courseObj };
+        alert('تم حفظ التعديل على الدورة');
+      }
+      delete document.getElementById('cTitle').dataset.editing;
+    } else {
+      const newId = Date.now();
+      courses.push({ id:newId, title:courseObj.title, price:courseObj.price||0, desc:courseObj.desc||'', duration:courseObj.duration||'', image:courseObj.image, saleState:courseObj.saleState||'before', what:[], tests:[] });
+      alert('تم إضافة الدورة');
+    }
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+    adminClearCourseForm();
+    renderCourses();
+    renderAdminCoursesList();
+  }
 
-export interface User {
-  id: string;
-  email: string;
-  username: string;
-  role: 'student' | 'admin';
-}
+  function adminClearCourseForm(){
+    document.getElementById('cTitle').value=''; document.getElementById('cPrice').value=''; document.getElementById('cDesc').value=''; document.getElementById('cDuration').value=''; document.getElementById('cImageUrl').value=''; document.getElementById('cImageFile').value=''; document.getElementById('cSaleState').value='before';
+    delete document.getElementById('cTitle').dataset.editing;
+  }
 
-export interface Purchase {
-  id: string;
-  courseId: string;
-  userId: string;
-  purchasedAt: number;
-}
-    </code></pre>
+  function renderAdminCoursesList(){
+    const list = document.getElementById('adminCoursesList'); list.innerHTML='';
+    courses.slice().reverse().forEach((c)=>{
+      const row = document.createElement('div'); row.className='p-3 border rounded flex items-center justify-between';
+      row.innerHTML = `<div class="flex items-center gap-3"><img src="${c.image}" class="thumb" onerror="this.src='https://placehold.co/120x80?text=NA'"><div><div class="font-semibold">${c.title}</div><div class="text-xs text-gray-500">السعر: ${c.price} ر.س — الحالة: ${c.saleState==='before' ? 'قبل العرض' : 'بعد العرض'}</div></div></div>
+        <div class="flex flex-col gap-2">
+          <button class="px-3 py-1 border rounded text-sm" onclick="adminEditCourse(${c.id})">تعديل</button>
+          <button class="px-3 py-1 border rounded text-sm" onclick="adminDeleteCourse(${c.id})">حذف</button>
+        </div>`;
+      list.appendChild(row);
+    });
+  }
 
-    <h2>src/lib/utils.ts</h2>
-    <pre><code>
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+  function adminEditCourse(id){
+    const c = courses.find(x=>x.id===id);
+    if(!c) return;
+    document.getElementById('cTitle').value = c.title; document.getElementById('cPrice').value = c.price; document.getElementById('cDesc').value=c.desc; document.getElementById('cDuration').value=c.duration; document.getElementById('cImageUrl').value = c.image; document.getElementById('cSaleState').value = c.saleState;
+    document.getElementById('cTitle').dataset.editing = c.id;
+    window.scrollTo({ top: document.getElementById('adminPanel').offsetTop, behavior:'smooth' });
+  }
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-    </code></pre>
+  function adminDeleteCourse(id){
+    if(!confirm('هل تأكد أنك تريد حذف هذه الدورة؟')) return;
+    courses = courses.filter(c=>c.id!==id);
+    localStorage.setItem('coursesData', JSON.stringify(courses));
+    renderCourses(); renderAdminCoursesList();
+    alert('تم الحذف');
+  }
 
-    <h2>src/lib/firebase.ts</h2>
-    <pre><code>
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import admin from 'firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
+  /*********************
+   * News images manager (local files or URL)
+   *********************/
+  function addNewsImageFromFile(){
+    const finput = document.getElementById('newsFile');
+    if(!finput.files || !finput.files[0]){ alert('اختر ملفًا أولًا'); return; }
+    const f = finput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const dataUrl = e.target.result;
+      newsImages.push({ id: Date.now(), src: dataUrl });
+      localStorage.setItem('newsImages', JSON.stringify(newsImages));
+      renderNewsList();
+      finput.value = '';
+    };
+    reader.readAsDataURL(f);
+  }
 
+  function addNewsImageFromUrl(){
+    const url = document.getElementById('newsUrl').value.trim();
+    if(!url){ alert('ضع رابطًا'); return; }
+    newsImages.push({ id: Date.now(), src: url });
+    localStorage.setItem('newsImages', JSON.stringify(newsImages));
+    renderNewsList();
+    document.getElementById('newsUrl').value='';
+  }
+
+  function renderNewsList(){
+    const wrap = document.getElementById('newsList'); wrap.innerHTML='';
+    if(!newsImages.length){ wrap.innerHTML = '<div class="text-gray-600">لا توجد صور أخبار مضافة بعد.</div>'; return; }
+    newsImages.slice().reverse().forEach(img=>{
+      const el = document.createElement('div'); el.className='p-2 border rounded flex items-center justify-between gap-2';
+      el.innerHTML = `<img src="${img.src}" class="thumb" onerror="this.src='https://placehold.co/120x80?text=NA'"><div class="flex flex-col gap-2"><button class="px-3 py-1 border rounded text-sm" onclick='viewImage("${img.src.replace(/"/g,'&quot;')}")'>عرض</button><button class="px-3 py-1 border rounded text-sm" onclick="removeNewsImage(${img.id})">حذف</button></div>`;
+      wrap.appendChild(el);
+    });
+  }
+
+  function removeNewsImage(id){
+    if(!confirm('حذف هذه الصورة؟')) return;
+    newsImages = newsImages.filter(i=>i.id!==id);
+    localStorage.setItem('newsImages', JSON.stringify(newsImages));
+    renderNewsList();
+  }
+
+  function viewImage(src){
+    // عرض بسيط في نافذة جديدة
+    const w = window.open('');
+    w.document.write(`<img src="${src}" style="max-width:100%;height:auto" />`);
+  }
+
+  /*********************
+   * Admin questions & sales (existing)
+   *********************/
+  function renderAdminQuestions(){
+    const list = document.getElementById('adminQuestionsList'); if(!list) return;
+    list.innerHTML='';
+    adminQuestions.forEach((q,i)=>{
+      const el = document.createElement('div'); el.className='p-3 border rounded flex items-start justify-between';
+      el.innerHTML = `<div><div class="font-semibold">${q.testName}</div><div class="text-sm mt-1">${q.text}</div><div class="mt-2 text-xs text-gray-500">الخيارات: ${q.options.join(' | ')}</div><div class="mt-2"><span class="correct-badge">الإجابة: خيار ${parseInt(q.correct)+1}</span> <span class="text-xs text-gray-500 ml-2">وقت: ${q.time || 'مفتوح'}</span></div></div><div><button class="px-3 py-1 border rounded" onclick="removeQuestion(${i})">حذف</button></div>`;
+      list.appendChild(el);
+    });
+  }
+  function addQuestion(){
+    const testName = document.getElementById('qTest').value.trim() || 'عام';
+    const text = document.getElementById('qText').value.trim(); 
+    const options = [document.getElementById('opt1').value,document.getElementById('opt2').value,document.getElementById('opt3').value,document.getElementById('opt4').value].map(s=>s||'—');
+    const correct = document.getElementById('correctIndex').value;
+    const time = document.getElementById('qTime').value || null;
+    if(!text){ alert('أدخل نص السؤال'); return; }
+    adminQuestions.push({ testName, text, options, correct, time });
+    localStorage.setItem('adminQuestions', JSON.stringify(adminQuestions));
+    renderAdminQuestions();
+  }
+  function clearQuestions(){ if(!confirm('مسح جميع الأسئلة؟')) return; adminQuestions=[]; localStorage.setItem('adminQuestions','[]'); renderAdminQuestions(); }
+  function removeQuestion(i){ adminQuestions.splice(i,1); localStorage.setItem('adminQuestions', JSON.stringify(adminQuestions)); renderAdminQuestions(); }
+
+  /*********************
+   * Sales rendering
+   *********************/
+  function renderSales(){
+    const el = document.getElementById('salesList');
+    if(!sales.length) { el.innerText = 'لا توجد مبيعات بعد.'; return; }
+    el.innerHTML = '';
+    sales.slice().reverse().forEach(s=>{
+      const c = courses.find(x=>x.id===s.courseId) || {title:'(دورة محذوفة)'};
+      const row = document.createElement('div'); row.className='flex items-center justify-between py-2 border-b';
+      row.innerHTML = `<div class="text-sm">${c.title} — ${s.user}</div><div class="text-sm text-gray-500">${new Date(s.at).toLocaleString()} — ${s.amount} ر.س</div>`;
+      el.appendChild(row);
+    });
+  }
+
+  /*********************
+   * Auth (localStorage) with admin code check
+   *********************/
+  function getCurrentUser(){ return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+  function setCurrentUser(u){ localStorage.setItem('currentUser', JSON.stringify(u)); updateAuthUI(); }
+  function doLogin(){
+    const email = document.getElementById('authEmail').value.trim();
+    const pass = document.getElementById('authPass').value;
+    if(!email || !pass){ alert('أكمل الحقول'); return; }
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const found = users.find(x=> (x.email===email || x.username===email) && x.pass===pass);
+    if(found){
+      setCurrentUser(found);
+      closeAuth();
+      alert('تم تسجيل الدخول كمستخدم: '+(found.username||found.email));
+      if(found.role==='admin'){ showAdminPanel(); }
+    } else {
+      alert('بيانات غير صحيحة أو المستخدم غير مسجل');
+    }
+  }
+
+  function showRegisterForm(){
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('authTitle').innerText = 'إنشاء حساب';
+  }
+  function showLoginForm(){
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('authTitle').innerText = 'تسجيل الدخول';
+  }
+
+  function doRegister(){
+    const email = document.getElementById('regEmail').value.trim();
+    const username = document.getElementById('regUsername').value.trim();
+    const pass = document.getElementById('regPass').value;
+    const adminCode = document.getElementById('regAdminCode').value.trim();
+
+    if(!email || !username || !pass){ alert('أكمل الحقول'); return; }
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    if(users.find(u=>u.email===email)){ alert('هذا البريد مسجل بالفعل'); return; }
+
+    let role = 'student';
+    if(adminCode && adminCode === ADMIN_CODE){
+      role = 'admin';
+    }
+    const newUser = { email, username, pass, role };
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    alert('تم إنشاء الحساب بنجاح. الدور: ' + role);
+    setCurrentUser(newUser);
+    closeAuth();
+    if(role === 'admin') showAdminPanel();
+  }
+
+  function openAuth(){ document.getElementById('authModal').classList.remove('hidden'); showLoginForm(); }
+  function closeAuth(){ document.getElementById('authModal').classList.add('hidden'); }
+
+  function updateAuthUI(){
+    const cur = getCurrentUser();
+    document.getElementById('btnLogin').innerText = cur ? (cur.username || cur.email) : 'تسجيل/دخول';
+    document.getElementById('btnDashboard').classList.toggle('hidden', !(cur && cur.role==='admin'));
+  }
+
+  function showAdminPanel(){
+    const cur = getCurrentUser();
+    if(!cur || cur.role!=='admin'){ alert('مساحة المشرفين مقفلة — سجّل كمشرف لعرضها'); return; }
+    showSection('admin'); document.getElementById('adminPanel').classList.remove('hidden');
+    renderAdminButtonsList(); renderAdminQuestions(); renderSales(); renderAdminCoursesList(); renderNewsList();
+  }
+
+  // bindings
+  document.getElementById('btnLogin').addEventListener('click', ()=> openAuth());
+  document.getElementById('btnDashboard').addEventListener('click', ()=> showAdminPanel());
+
+  // initial render
+  renderCourses();
+  renderCourseButtons();
+  renderAdminQuestions();
+  renderSales();
+  renderAdminCoursesList();
+  renderNewsList();
+  updateAuthUI();
+
+</script>
+
+
+<div id="adminPanel" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;box-shadow:-2px 0 5px rgba(0,0,0,0.3);padding:10px;z-index:9000;overflow:auto;">
+  <h3 style="text-align:center;">🛠️ قائمة المشرفين</h3>
+  <div style="display:flex;gap:5px;justify-content:space-around;margin-bottom:10px;">
+    <button onclick="openTab('coursesTab')">📝 الدورات</button>
+    <button onclick="openTab('newsTab')">🖼️ الأخبار</button>
+    <button onclick="openTab('buttonsTab')">🔘 الكورسات</button>
+    <button onclick="openTab('questionsTab')">❓ الأسئلة</button>
+    <button onclick="openTab('salesTab')">💰 المبيعات</button>
+  </div>
+  <div id="coursesTab" class="adminTab" style="display:none;">
+    <h4>إدارة الدورات</h4>
+    <div id="coursesList"></div>
+    <input type="text" id="newCourseName" placeholder="اسم الدورة">
+    <button onclick="addCourse()">➕ إضافة</button>
+  </div>
+  <div id="newsTab" class="adminTab" style="display:none;">
+    <h4>إدارة صور الأخبار</h4>
+    <div id="newsList"></div>
+    <input type="text" id="newNewsURL" placeholder="رابط الصورة">
+    <button onclick="addNews()">➕ إضافة</button>
+  </div>
+  <div id="buttonsTab" class="adminTab" style="display:none;">
+    <h4>إدارة أزرار الكورسات</h4>
+    <div id="buttonsList"></div>
+    <input type="text" id="newButtonName" placeholder="اسم الزر">
+    <button onclick="addButton()">➕ إضافة</button>
+  </div>
+  <div id="questionsTab" class="adminTab" style="display:none;">
+    <h4>إدارة الأسئلة</h4>
+    <div id="questionsList"></div>
+    <input type="text" id="newQuestion" placeholder="السؤال">
+    <button onclick="addQuestion()">➕ إضافة</button>
+  </div>
+  <div id="salesTab" class="adminTab" style="display:none;">
+    <h4>إدارة المبيعات</h4>
+    <div id="salesList"></div>
+  </div>
+</div>
+
+<button id="adminToggleBtn" style="display:none;position:fixed;top:20px;right:20px;z-index:9001;">قائمة المشرفين</button>
+
+
+<script>
 const firebaseConfig = {
-  projectId: 'tawiq-redux',
-  appId: '1:725506238999:web:2c9147bcf4480c52fc4a52',
-  storageBucket: 'tawiq-redux.firebasestorage.app',
-  apiKey: 'AIzaSyD3p7zht4hZC2-8NJ9bVrBUnWT0XzUEp50',
-  authDomain: 'tawiq-redux.firebaseapp.com',
-  measurementId: '',
-  messagingSenderId: '725506238999'
+  apiKey: "AIzaSyB4_41AcIGnlxFVT7XYGfFFCtGQZmFj0tI",
+  authDomain: "tawiq-f8d65.firebaseapp.com",
+  projectId: "tawiq-f8d65",
+  storageBucket: "tawiq-f8d65.firebasestorage.app",
+  messagingSenderId: "47258312484",
+  appId: "1:47258312484:web:588d01bd2d7fd560e49db1",
+  measurementId: "G-4JXWGDD0HY"
 };
 
-// Initialize Firebase for client-side
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-// Initialize Firebase Admin for server-side
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-    });
-  } catch (error) {
-    console.log('Firebase admin initialization error', error);
+let isRegister = false;
+document.getElementById('toggleAuth').onclick = () => {
+  isRegister = !isRegister;
+  document.getElementById('authTitle').innerText = isRegister ? 'إنشاء حساب' : 'تسجيل دخول';
+  document.getElementById('authAction').innerText = isRegister ? 'إنشاء حساب' : 'تسجيل دخول';
+  document.getElementById('adminCode').style.display = isRegister ? 'block' : 'none';
+  document.getElementById('toggleAuth').innerText = isRegister ? 'لديك حساب؟ تسجيل دخول' : 'إنشاء حساب جديد';
+};
+
+document.getElementById('authAction').onclick = () => {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('password').value;
+  const adminCode = document.getElementById('adminCode').value;
+  if (isRegister) {
+    auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+      db.ref('profiles/' + cred.user.uid).set({email: email});
+      if (adminCode === 'moshrif192837465') {
+        db.ref('admins/' + cred.user.uid).set(true);
+      }
+    }).catch(alert);
+  } else {
+    auth.signInWithEmailAndPassword(email, pass).catch(alert);
   }
+};
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('authModal').style.display = 'none';
+    db.ref('admins/' + user.uid).once('value').then(snap => {
+      if (snap.val()) {
+        document.getElementById('adminToggleBtn').style.display = 'block';
+      }
+    });
+  } else {
+    document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('adminToggleBtn').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
+
+document.getElementById('adminToggleBtn').onclick = () => {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+};
+</script>
+
+
+<script>
+function openTab(tabId) {
+  document.querySelectorAll('.adminTab').forEach(tab => tab.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
 }
 
+// Courses
+function loadCourses() {
+  firebase.database().ref('courses').on('value', snap => {
+    const list = document.getElementById('coursesList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key].name || 'بدون اسم';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه الدورة؟')) {
+          firebase.database().ref('courses/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addCourse() {
+  const name = document.getElementById('newCourseName').value;
+  if (!name) return alert('أدخل اسم الدورة');
+  const key = firebase.database().ref().child('courses').push().key;
+  firebase.database().ref('courses/' + key).set({name});
+  document.getElementById('newCourseName').value = '';
+}
 
-const db = getFirestore();
+// News
+function loadNews() {
+  firebase.database().ref('newsImages').on('value', snap => {
+    const list = document.getElementById('newsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.innerHTML = '<img src="'+data[key]+'" style="width:50px;height:50px;">';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+          firebase.database().ref('newsImages/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addNews() {
+  const url = document.getElementById('newNewsURL').value;
+  if (!url) return alert('أدخل رابط الصورة');
+  const key = firebase.database().ref().child('newsImages').push().key;
+  firebase.database().ref('newsImages/' + key).set(url);
+  document.getElementById('newNewsURL').value = '';
+}
 
-export { app, db };
-    </code></pre>
+// Buttons
+function loadButtons() {
+  firebase.database().ref('courseButtons').on('value', snap => {
+    const list = document.getElementById('buttonsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key];
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذا الزر؟')) {
+          firebase.database().ref('courseButtons/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addButton() {
+  const name = document.getElementById('newButtonName').value;
+  if (!name) return alert('أدخل اسم الزر');
+  const key = firebase.database().ref().child('courseButtons').push().key;
+  firebase.database().ref('courseButtons/' + key).set(name);
+  document.getElementById('newButtonName').value = '';
+}
 
-    <h2>src/lib/auth.ts</h2>
-    <pre><code>
-import { cookies } from 'next/headers';
-import type { User } from './types';
-import { getUserById } from './data';
+// Questions
+function loadQuestions() {
+  firebase.database().ref('adminQuestions').on('value', snap => {
+    const list = document.getElementById('questionsList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = data[key];
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+          firebase.database().ref('adminQuestions/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
+  });
+}
+function addQuestion() {
+  const q = document.getElementById('newQuestion').value;
+  if (!q) return alert('أدخل السؤال');
+  const key = firebase.database().ref().child('adminQuestions').push().key;
+  firebase.database().ref('adminQuestions/' + key).set(q);
+  document.getElementById('newQuestion').value = '';
+}
 
-const SESSION_COOKIE_NAME = 'tawiq_session';
-export const ADMIN_CODE = 'moshrif192837465';
-
-export async function createSession(userId: string) {
-  cookies().set(SESSION_COOKIE_NAME, userId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7, // One week
-    path: '/',
+// Sales
+function loadSales() {
+  firebase.database().ref('sales').on('value', snap => {
+    const list = document.getElementById('salesList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    Object.keys(data).forEach(key => {
+      const div = document.createElement('div');
+      div.textContent = JSON.stringify(data[key]);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        if (confirm('هل أنت متأكد من حذف هذه العملية؟')) {
+          firebase.database().ref('sales/' + key).remove();
+        }
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
   });
 }
 
-export async function getCurrentUser(): Promise<User | null> {
-  const userId = cookies().get(SESSION_COOKIE_NAME)?.value;
-  if (!userId) return null;
+// Load data when opening tabs
+document.getElementById('adminToggleBtn').addEventListener('click', () => {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
 
+</script>
+
+
+<style>
+/* Toast styles */
+#toastContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 12000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.toast {
+  background: rgba(17,24,39,0.95);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(16,24,40,0.2);
+  transform-origin: bottom right;
+  animation: toastIn 240ms ease;
+  font-size: 14px;
+}
+@keyframes toastIn {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.loading-badge {
+  display:inline-block;
+  padding:4px 8px;
+  background:#f3f4f6;
+  color:#374151;
+  border-radius:6px;
+  font-size:13px;
+  margin-left:8px;
+}
+</style>
+<div id="toastContainer"></div>
+<script>
+function showToast(msg, timeout=3000) {
+  const container = document.getElementById('toastContainer');
+  if(!container) return;
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerText = msg;
+  container.appendChild(t);
+  setTimeout(()=> {
+    t.style.transition = 'all 240ms ease';
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(8px) scale(0.98)';
+    setTimeout(()=> t.remove(), 260);
+  }, timeout);
+}
+
+/* Render helpers for site sections (read from DB via on) */
+
+function renderCoursesList(data) {
+  const container = document.getElementById('coursesContainer');
+  if(!container) return;
+  container.innerHTML = '';
+  if(!data) { container.innerHTML = '<div class="text-gray-600">لا توجد دورات بعد.</div>'; return; }
+  // if array-like or object
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'bg-white rounded-lg overflow-hidden card-shadow';
+    el.innerHTML = `
+      <img src="${c.image || 'https://placehold.co/800x500?text=image+not+found'}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/800x500?text=image+not+found';" />
+      <div class="p-4">
+        <h3 class="font-semibold text-lg">${c.title || c.name || 'بدون عنوان'}</h3>
+        <p class="text-sm text-gray-600 mt-2">${c.desc || ''}</p>
+        <div class="mt-2 text-xs text-gray-500">الحالة: ${ (c.saleState === 'before') ? 'قبل العرض' : (c.saleState === 'after' ? 'بعد العرض' : '—') }</div>
+        <div class="mt-4 flex items-center justify-between">
+          <div><span class="text-xl font-bold">${c.price || 0}</span> <span class="text-sm text-gray-500">ر.س</span></div>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border rounded text-sm" onclick="openDetail('${c.id || ''}')">تفاصيل</button>
+            <button class="px-3 py-1 btn-primary rounded text-sm" onclick="quickBuy('${c.id || ''}')">اشتري</button>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(el);
+  });
+}
+
+function renderNewsImages(data) {
+  const place = document.querySelector('#newsImagesPlace');
+  if(!place) return;
+  place.innerHTML='';
+  if(!data){ place.innerHTML = '<div class="text-gray-600">لا توجد أخبار بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(it => {
+    const img = document.createElement('img');
+    img.src = it.src || it;
+    img.style.width = '100%';
+    img.style.maxHeight = '200px';
+    img.style.objectFit = 'cover';
+    img.className = 'rounded card-shadow mb-3';
+    place.appendChild(img);
+  });
+}
+
+function renderCourseButtonsFront(data) {
+  const wrap = document.getElementById('courseButtons');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  if(!data){ wrap.innerHTML = '<div class="text-gray-600">لا توجد أزرار مُضافة بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(b => {
+    const el = document.createElement('div');
+    el.className='p-4 bg-white rounded-lg flex items-center justify-between card-shadow';
+    el.innerHTML = `<div><div class="font-semibold">${b.title || b}</div><div class="text-sm text-gray-500">${b.url || ''}</div></div><div class="flex gap-2"><a target="_blank" href="${b.url || '#'}" class="px-3 py-2 btn-primary rounded text-sm">افتح</a></div>`;
+    wrap.appendChild(el);
+  });
+}
+
+function renderQuestionsFront(data) {
+  const el = document.getElementById('publicQuestions');
+  if(!el) return;
+  el.innerHTML='';
+  if(!data){ el.innerHTML='<div class="text-gray-600">لا توجد أسئلة.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(q => {
+    const d = document.createElement('div');
+    d.className='p-3 border rounded mb-2';
+    d.innerHTML = `<div class="font-semibold">${q.testName || 'عام'}</div><div class="text-sm mt-1">${q.text || q}</div>`;
+    el.appendChild(d);
+  });
+}
+
+function renderSalesFront(data) {
+  const el = document.getElementById('salesFront');
+  if(!el) return;
+  el.innerHTML='';
+  if(!data){ el.innerHTML = '<div class="text-gray-600">لا توجد مبيعات بعد.</div>'; return; }
+  const items = Array.isArray(data) ? data : Object.values(data);
+  items.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between py-2 border-b';
+    row.innerText = (s.courseTitle || s.courseId || '') + ' — ' + (s.user || '' ) + ' — ' + (s.amount || '');
+    el.appendChild(row);
+  });
+}
+
+/* Attach realtime listeners to update UI and show toasts */
+(function attachRealtime() {
   try {
-    const user = await getUserById(userId);
-    if (!user) {
-      // Clean up invalid cookie
-      await deleteSession();
-      return null;
-    }
+    const coursesRef = firebase.database().ref('courses');
+    const newsRef = firebase.database().ref('newsImages');
+    const buttonsRef = firebase.database().ref('courseButtons');
+    const qRef = firebase.database().ref('adminQuestions');
+    const salesRef = firebase.database().ref('sales');
 
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-  } catch (error) {
-    console.error("Error in getCurrentUser:", error);
-    return null;
+    const coursesLoadingBadge = document.createElement('span');
+    coursesLoadingBadge.className = 'loading-badge';
+    coursesLoadingBadge.id = 'coursesLoading';
+    coursesLoadingBadge.innerText = 'جاري التحميل...';
+    const coursesHeader = document.querySelector('#courses .text-2xl');
+    if(coursesHeader) coursesHeader.appendChild(coursesLoadingBadge);
+
+    coursesRef.on('value', snap => {
+      const data = snap.val();
+      renderCoursesList(data);
+      const badge = document.getElementById('coursesLoading');
+      if(badge) badge.remove();
+      showToast('تم تحديث الدورات');
+    });
+
+    const newsLoading = document.createElement('span');
+    newsLoading.className='loading-badge'; newsLoading.id='newsLoading'; newsLoading.innerText='جاري التحميل...';
+    const newsHeader = document.querySelector('#courses + div h3') || document.querySelector('h3.text-lg');
+    if(newsHeader) newsHeader.appendChild(newsLoading);
+
+    newsRef.on('value', snap => {
+      const data = snap.val();
+      renderNewsImages(data);
+      const badge = document.getElementById('newsLoading'); if(badge) badge.remove();
+      showToast('تم تحديث الأخبار');
+    });
+
+    buttonsRef.on('value', snap => {
+      const data = snap.val();
+      renderCourseButtonsFront(data);
+      showToast('تم تحديث أزرار الكورسات');
+    });
+
+    qRef.on('value', snap => {
+      const data = snap.val();
+      renderQuestionsFront(data);
+      showToast('تم تحديث الأسئلة');
+    });
+
+    salesRef.on('value', snap => {
+      const data = snap.val();
+      renderSalesFront(data);
+      showToast('تم تحديث المبيعات');
+    });
+  } catch(e) {
+    console.error('Realtime attach error', e);
   }
-}
+})();
+</script>
 
-export async function deleteSession() {
-  cookies().delete(SESSION_COOKIE_NAME);
-}
-    </code></pre>
-
-    <h2>src/lib/data.ts</h2>
-    <pre><code>
-import type { Course, NewsImage, User, Purchase } from '@/lib/types';
-import { db } from './firebase';
-
-// Let's use Firestore for data storage
-const usersCollection = db.collection('users');
-const coursesCollection = db.collection('courses');
-const newsImagesCollection = db.collection('newsImages');
-const purchasesCollection = db.collection('purchases');
-
-export async function getUsers(): Promise<(User & { password?: string })[]> {
-    try {
-        const snapshot = await usersCollection.get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User & { password?: string }));
-    } catch (error) {
-        console.error("Error getting users:", error);
-        return [];
-    }
-}
-
-export async function getUserById(id: string): Promise<(User & { password?: string }) | null> {
-    try {
-        const doc = await usersCollection.doc(id).get();
-        if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as User & { password?: string };
-    } catch (error) {
-        console.error(`Error getting user by id ${id}:`, error);
-        return null;
-    }
-}
-
-export async function getUserByEmailOrUsername(emailOrUsername: string): Promise<(User & { password?: string }) | null> {
-    try {
-        const emailQuery = await usersCollection.where('email', '==', emailOrUsername).limit(1).get();
-        if (!emailQuery.empty) {
-            const doc = emailQuery.docs[0];
-            return { id: doc.id, ...doc.data() } as User & { password?: string };
-        }
-        const usernameQuery = await usersCollection.where('username', '==', emailOrUsername).limit(1).get();
-        if (!usernameQuery.empty) {
-            const doc = usernameQuery.docs[0];
-            return { id: doc.id, ...doc.data() } as User & { password?: string };
-        }
-        return null;
-    } catch (error) {
-        console.error(`Error getting user by email or username ${emailOrUsername}:`, error);
-        return null;
-    }
-}
-
-export async function createUser(user: Omit<User & { password?: string }, 'id'>): Promise<string> {
-    const docRef = await usersCollection.add(user);
-    return docRef.id;
-}
-
-
-// Courses
-export async function getCourses(): Promise<Course[]> {
-  try {
-    const snapshot = await coursesCollection.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Course));
-  } catch (error) {
-    console.error("Error getting courses:", error);
-    return [];
-  }
-}
-
-export async function getCourseById(id: string): Promise<Course | undefined> {
-  try {
-    const doc = await coursesCollection.doc(id).get();
-    if (!doc.exists) return undefined;
-    return { id: doc.id, ...doc.data() } as Course;
-  } catch (error) {
-    console.error(`Error getting course by id ${id}:`, error);
-    return undefined;
-  }
-}
-
-export async function saveCourseData(course: Omit<Course, 'id'>, id?: string): Promise<string> {
-    if (id) {
-        await coursesCollection.doc(id).set(course, { merge: true });
-        return id;
-    } else {
-        const docRef = await coursesCollection.add(course);
-        return docRef.id;
-    }
-}
-
-export async function deleteCourseData(id: string): Promise<void> {
-    await coursesCollection.doc(id).delete();
-}
-
-// News Images
-export async function getNewsImages(): Promise<NewsImage[]> {
-    try {
-        const snapshot = await newsImagesCollection.orderBy('createdAt', 'desc').get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsImage));
-    } catch (error) {
-        console.error("Error getting news images:", error);
-        return [];
-    }
-}
-
-export async function addNewsImageData(src: string): Promise<string> {
-    const docRef = await newsImagesCollection.add({ src, createdAt: new Date() });
-    return docRef.id;
-}
-
-export async function deleteNewsImageData(id: string): Promise<void> {
-    await newsImagesCollection.doc(id).delete();
-}
-
-// Purchases
-export async function getUserPurchases(userId: string): Promise<Purchase[]> {
-    try {
-        const snapshot = await purchasesCollection.where('userId', '==', userId).get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Purchase));
-    } catch (error) {
-        console.error(`Error getting user purchases for user ${userId}:`, error);
-        return [];
-    }
-}
-
-export async function hasUserPurchasedCourse(userId: string, courseId: string): Promise<boolean> {
-    try {
-        const snapshot = await purchasesCollection
-            .where('userId', '==', userId)
-            .where('courseId', '==', courseId)
-            .limit(1)
-            .get();
-        return !snapshot.empty;
-    } catch (error) {
-        console.error(`Error checking purchase for user ${userId} and course ${courseId}:`, error);
-        return false;
-    }
-}
-
-export async function createPurchase(userId: string, courseId: string): Promise<string> {
-    const purchase = {
-        userId,
-        courseId,
-        purchasedAt: Date.now(),
-    };
-    const docRef = await purchasesCollection.add(purchase);
-    return docRef.id;
-}
-    </code></pre>
-
-    <h2>src/app/actions.ts</h2>
-    <pre><code>
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { ADMIN_CODE, createSession, deleteSession, getCurrentUser } from "@/lib/auth";
-import { 
-    getCourses as getCoursesData,
-    getCourseById as getCourseByIdData,
-    getNewsImages as getNewsImagesData,
-    getUserPurchases as getUserPurchasesData,
-    saveCourseData,
-    deleteCourseData,
-    addNewsImageData,
-    deleteNewsImageData,
-    getUserByEmailOrUsername,
-    createUser,
-    hasUserPurchasedCourse,
-    createPurchase,
-} from "@/lib/data";
-import type { Course } from "@/lib/types";
-
-// Auth Actions
-const loginSchema = z.object({
-  emailOrUsername: z.string(),
-  password: z.string(),
-});
-
-export async function login(values: z.infer<typeof loginSchema>) {
-  const parsed = loginSchema.safeParse(values);
-  if (!parsed.success) {
-    return { error: "البيانات المدخلة غير صالحة." };
-  }
-
-  const { emailOrUsername, password } = parsed.data;
-
-  const user = await getUserByEmailOrUsername(emailOrUsername);
-
-  if (!user || user.password !== password) {
-    return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة." };
-  }
-
-  await createSession(user.id);
-  return { success: true };
-}
-
-export async function logout() {
-  await deleteSession();
-  revalidatePath('/', 'layout');
-}
-
-const registerSchema = z.object({
-  email: z.string().email(),
-  username: z.string().min(3),
-  password: z.string().min(6),
-  adminCode: z.string().optional(),
-});
-
-export async function register(values: z.infer<typeof registerSchema>) {
-  const parsed = registerSchema.safeParse(values);
-  if (!parsed.success) {
-    return { error: "البيانات المدخلة غير صالحة." };
-  }
-
-  const { email, username, password, adminCode } = parsed.data;
-
-  const existingUser = await getUserByEmailOrUsername(email);
-  if (existingUser) {
-    return { error: "البريد الإلكتروني أو اسم المستخدم مسجل بالفعل." };
-  }
-  const existingUserByUsername = await getUserByEmailOrUsername(username);
-  if (existingUserByUsername) {
-    return { error: "البريد الإلكتروني أو اسم المستخدم مسجل بالفعل." };
-  }
-
-
-  const role = adminCode === ADMIN_CODE ? "admin" : "student";
-  
-  const userId = await createUser({ email, username, password, role });
-
-  await createSession(userId);
-  return { success: true, role };
-}
-
-// Data Getters
-export async function getCourses(): Promise<Course[]> {
-  return await getCoursesData();
-}
-
-export async function getCourseById(id: string): Promise<Course | undefined> {
-  return await getCourseByIdData(id);
-}
-
-export async function getNewsImages() {
-  return await getNewsImagesData();
-}
-
-export async function getUserPurchases(userId: string) {
-  return await getUserPurchasesData(userId);
-}
-
-
-// Purchase Action
-export async function quickBuyCourse(courseId: string) {
-    const user = await getCurrentUser();
-    if (!user) {
-      return { error: "يجب تسجيل الدخول أولاً لإتمام عملية الشراء." };
-    }
-  
-    const course = await getCourseByIdData(courseId);
-    if (!course) {
-      return { error: "الدورة غير موجودة." };
-    }
-
-    const existingPurchase = await hasUserPurchasedCourse(user.id, courseId);
-
-    if (existingPurchase) {
-      return { error: "لقد قمت بشراء هذه الدورة بالفعل." };
-    }
-  
-    await createPurchase(user.id, courseId);
-  
-    revalidatePath('/my-courses');
-    return { success: true };
-}
-
-// Admin Actions
-const courseSchema = z.object({
-    id: z.string().optional(),
-    title: z.string().min(1, 'العنوان مطلوب'),
-    description: z.string().min(1, 'الوصف مطلوب'),
-    price: z.coerce.number().min(0, 'السعر يجب أن يكون إيجابيًا'),
-    duration: z.string().min(1, 'المدة مطلوبة'),
-    image: z.string().url('رابط الصورة غير صالح'),
-    saleState: z.enum(['before', 'after']),
-    whatToLearn: z.string().transform(val => val.split(',').map(s => s.trim()))
-});
-
-export async function saveCourse(formData: FormData) {
-    const user = await getCurrentUser();
-    if (user?.role !== 'admin') {
-        return { error: 'غير مصرح لك' };
-    }
-
-    const values = Object.fromEntries(formData.entries());
-    const parsed = courseSchema.safeParse(values);
-
-    if (!parsed.success) {
-        return { error: 'البيانات غير صالحة', errors: parsed.error.flatten().fieldErrors };
-    }
-    
-    const { id, ...courseData } = parsed.data;
-
-    await saveCourseData(courseData, id);
-
-    revalidatePath('/');
-    revalidatePath('/admin');
-    revalidatePath('/my-courses');
-    return { success: true };
-}
-
-export async function deleteCourse(courseId: string) {
-    const user = await getCurrentUser();
-    if (user?.role !== 'admin') {
-        return { error: 'غير مصرح لك' };
-    }
-    await deleteCourseData(courseId);
-    revalidatePath('/');
-    revalidatePath('/admin');
-    revalidatePath('/my-courses');
-    return { success: true };
-}
-
-const newsImageSchema = z.object({
-    src: z.string().url('رابط الصورة غير صالح')
-});
-
-export async function addNewsImage(formData: FormData) {
-    const user = await getCurrentUser();
-    if (user?.role !== 'admin') {
-        return { error: 'غير مصرح لك' };
-    }
-
-    const values = Object.fromEntries(formData.entries());
-    const parsed = newsImageSchema.safeParse(values);
-    if (!parsed.success) {
-        return { error: 'رابط الصورة غير صالح' };
-    }
-    
-    await addNewsImageData(parsed.data.src);
-    
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-}
-
-export async function deleteNewsImage(id: string) {
-    const user = await getCurrentUser();
-    if (user?.role !== 'admin') {
-        return { error: 'غير مصرح لك' };
-    }
-    await deleteNewsImageData(id);
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-}
-    </code></pre>
-    
-    <h2>src/components/header.tsx</h2>
-    <pre><code>
-import Link from 'next/link';
-import AuthButton from './auth-button';
-import { getCurrentUser } from '@/lib/auth';
-import { Button } from './ui/button';
-import Image from 'next/image';
-
-const Header = async () => {
-  const user = await getCurrentUser();
-
-  return (
-    <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="https://placehold.co/40x40" alt="طويق" width={40} height={40} data-ai-hint="education logo" className="rounded-full" />
-            <span className="text-xl font-bold text-primary hidden sm:inline">طويق التعليمية</span>
-          </Link>
-        </div>
-        <nav className="hidden md:flex items-center gap-6">
-          <a href="https://t.me/tawiqKSA" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            تواصل
-          </a>
-          {user && (
-            <Link href="/my-courses" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              دوراتي
-            </Link>
-          )}
-        </nav>
-        <div className="flex items-center gap-3">
-          {user?.role === 'admin' && (
-            <Button asChild variant="secondary">
-              <Link href="/admin">لوحة المشرف</Link>
-            </Button>
-          )}
-          <AuthButton user={user} />
-        </div>
-      </div>
-    </header>
-  );
-};
-
-export default Header;
-    </code></pre>
-
-    <h2>src/components/footer.tsx</h2>
-    <pre><code>
-import Image from 'next/image';
-
-const Footer = () => {
-  return (
-    <footer className="border-t mt-12 bg-primary text-primary-foreground">
-      <div className="container mx-auto px-6 py-8 text-center text-sm">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
-          <Image src="https://placehold.co/50x50" alt="logo" width={50} height={50} data-ai-hint="logo icon" className="rounded-full" />
-          <p className="max-w-2xl text-center">
-            منصة طويق التعليمية هي مساحة تعليمية مصممة خصيصًا لدعم الطلاب في اجتياز اختبار القدرات بسهولة وثقة، وتقدم المنصة مجموعة واسعة من الأدوات والخدمات مثل اختبارات مخصصة وملفات متنوعة للأسئلة وملخصات لتساعدك على تحسين مستواك بسرعة وبطريقة منظمة. مع طويق، ستجد كل ما تحتاجه لتتعلم بكفاءة وتحقق حلمك بإذن الله.
-          </p>
-          <Image src="https://placehold.co/50x50" alt="logo" width={50} height={50} data-ai-hint="logo icon" className="rounded-full" />
-        </div>
-        <div className="border-t border-primary-foreground/20 pt-6 mt-4">
-          © 2025 طويق التعليمية — كل الحقوق محفوظة
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-export default Footer;
-    </code></pre>
 </body>
+<footer style="background-color: green;">
+  <footer  class="border-t mt-12">
+<div style="display:flex;align-items:center;justify-content:center;background-color:green;padding:10px;gap:15px;">
+  <img src="https://i.ibb.co/Cyd52rq/Chat-GPT-Image-Aug-11-2025-08-36-12-PM.png" alt="الصورة الأولى" style="height:40px;"> 
+  <span style="max-width:500px;text-align:center;color:white;"> منصة طويق التعليمية هي مساحة تعليمية مصممة خصيصًا لدعم الطلاب في اجتياز اختبار القدرات بسهولة وثقة، وتقدم المنصة مجموعة واسعة من الأدوات والخدمات مثل اختبارات مخصصة وملفات متنوعة للأسئلة وملخصات لتساعدك على تحسين مستواك بسرعة وبطريقة منظمة. مع طويق، ستجد كل ما تحتاجه لتتعلم بكفاءة وتحقق حلمك بإذن الله </span> 
+  <img src="https://i.ibb.co/Cyd52rq/Chat-GPT-Image-Aug-11-2025-08-36-12-PM.png" alt="الصورة الثانية" style="height:40px;">
+</div>
+  </footer>
+</footer>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
