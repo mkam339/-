@@ -145,6 +145,18 @@
 
         <div id="adminGuard" class="rounded-2xl border p-6 text-sm text-neutral-600">يجب أن تكون مشرفًا لرؤية هذه الصفحة.</div>
 
+        
+        <div class="rounded-2xl border p-6">
+          <div class="text-lg font-extrabold mb-2">تفعيل وضع المشرف</div>
+          <p class="text-sm text-neutral-600 mb-3">أدخل رمز المشرف لتفعيل لوحة التحكم. إن لم تكن مسجلاً، سجّل الدخول أولًا.</p>
+          <div class="flex gap-2 max-w-md">
+            <input id="adminCodeInput" type="password" inputmode="numeric" placeholder="اكتب رمز المشرف هنا" class="w-full rounded-xl border px-3 py-2 text-sm" />
+            <button id="btnActivateAdmin" class="rounded-xl border px-3 py-2 text-sm">تفعيل</button>
+          </div>
+          <div id="adminActivateMsg" class="text-xs mt-2"></div>
+        </div>
+
+
         <div id="adminPanel" class="hidden space-y-8">
           <div class="rounded-2xl border p-6">
             <div class="text-lg font-extrabold mb-2">ملخص</div>
@@ -199,7 +211,6 @@
       <form id="authForm" class="space-y-3" autocomplete="off">
         <input id="authEmail" type="email" placeholder="البريد الإلكتروني" required class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm" />
         <input id="authPass" type="password" placeholder="كلمة المرور" required class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm" />
-        <input id="authCode" type="password" inputmode="numeric" autocomplete="new-password" placeholder="رمز المشرف (اختياري)" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm" />
         <button class="w-full rounded-xl px-4 py-2 text-sm font-extrabold text-white" style="background:#0a0a0a">نفّذ</button>
         <div id="authMsg" class="text-xs"></div>
       </form>
@@ -219,12 +230,6 @@
       </div>
     </div>
   </footer>
-
-  <div id="dbg" style="position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow:auto;background:#111;color:#fff;font:12px/1.4 monospace;z-index:99999;display:none;padding:8px"></div>
-  <script>
-    function dbg(msg){ try{var b=document.getElementById('dbg'); b.style.display='block'; var d=document.createElement('div'); d.textContent='• '+msg; b.appendChild(d);}catch(e){} }
-  </script>
-
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -260,7 +265,7 @@
     // ===== Helpers =====
 
     async function afterAuthSuccess() {
-      dbg('Checking user...'); const { data, error:errUser } = await supabase.auth.getUser(); if(errUser){ dbg('getUser error: '+(errUser.message||errUser)); }
+      const { data } = await supabase.auth.getUser();
       currentUser = data?.user || null;
       if (!currentUser) return;
       // ensure profile exists (init may have failed earlier)
@@ -281,7 +286,7 @@
 
 
     // ===== Boot =====
-    document.addEventListener('DOMContentLoaded', async () => { dbg('DOM ready');
+    document.addEventListener('DOMContentLoaded', async () => {
       $('year').textContent = new Date().getFullYear();
       // Auth modal toggles
       try { $('btnOpenAuth').onclick = () => openAuth(); } catch(e){}
@@ -289,15 +294,8 @@
       $('modeLogin').onclick = () => { authMode='login'; $('modeLogin').classList.add('bg-neutral-50'); $('modeSignup').classList.remove('bg-neutral-50'); };
       $('modeSignup').onclick = () => { authMode='signup'; $('modeSignup').classList.add('bg-neutral-50'); $('modeLogin').classList.remove('bg-neutral-50'); };
 
-
-      try {
-        const { data: ping, error: pingErr } = await supabase.from('settings').select('key').limit(1);
-        if (pingErr) { dbg('DB ping error: '+(pingErr.message||pingErr)); }
-        else { dbg('DB ping ok'); }
-      } catch(e){ dbg('DB ping exception: '+e.message); }
-
       // Current user
-      dbg('Checking user...'); const { data, error:errUser } = await supabase.auth.getUser(); if(errUser){ dbg('getUser error: '+(errUser.message||errUser)); }
+      const { data } = await supabase.auth.getUser();
       currentUser = data?.user || null;
       if (currentUser) {
         const { data: prof } = await supabase.from('profiles').select('role').eq('id', currentUser.id).maybeSingle();
@@ -306,35 +304,35 @@
       }
 
       // Auth form
-      $('authForm').onsubmit = async (e) => { dbg('Auth submit start');
+      $('authForm').onsubmit = async (e) => {
         e.preventDefault();
         $('authMsg').className = 'text-xs';
         $('authMsg').textContent = '...';
 
         const email = $('authEmail').value.trim();
         const password = $('authPass').value.trim();
-        const code = $('authCode').value.trim();
+        const code = ''; // admin code moved to Admin section
 
-        try { dbg('Mode: '+authMode);
+        try {
   if (authMode === 'login') {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+    // admin code moved to Admin section
   } else {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     if (!data?.user) { document.getElementById('authMsg').textContent = 'تم إرسال تأكيد للبريد. افتح الرابط ثم سجّل الدخول.'; return; }
     try { await supabase.rpc('init_profile'); } catch {}
-    if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+    // admin code moved to Admin section
   }
   await afterAuthSuccess();
 } catch {} }
           } else {
-            dbg('Calling signUp'); const { data, error } = await supabase.auth.signUp({ email, password }); dbg('signUp result: '+ (error? ('ERR '+error.message):('OK user? '+ (!!data&&!!data.user))) );
+            const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) throw error;
             if (!data?.user) { $('authMsg').textContent = 'تم إرسال تأكيد للبريد. افتح الرابط ثم سجّل الدخول.'; return; }
-            try { dbg('Mode: '+authMode); await supabase.rpc('init_profile'); } catch {}
-            if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+            try { await supabase.rpc('init_profile'); } catch {}
+            // admin code moved to Admin section
           }
           // location.reload(); // disabled due to persistSession=false
         } catch (err) {
@@ -343,12 +341,43 @@
         }
       };
 
+
+      // Admin activation (outside login)
+      try {
+        document.getElementById('btnActivateAdmin').onclick = async () => {
+          const box = document.getElementById('adminActivateMsg');
+          const code = (document.getElementById('adminCodeInput').value || '').trim();
+          box.className = 'text-xs'; box.textContent = '...';
+          if (!currentUser) { box.className='text-xs text-red-600'; box.textContent='سجّل الدخول أولاً.'; return; }
+          if (!code) { box.className='text-xs text-red-600'; box.textContent='اكتب رمز المشرف.'; return; }
+          try {
+            const { data, error } = await supabase.rpc('elevate_to_admin', { p_code: code });
+            if (error) throw error;
+            // Re-fetch role
+            const { data: prof } = await supabase.from('profiles').select('role').eq('id', currentUser.id).maybeSingle();
+            profileRole = prof?.role || 'client';
+            if (profileRole === 'admin') {
+              document.getElementById('adminLink').classList.remove('hidden');
+              document.getElementById('adminGuard').classList.add('hidden');
+              document.getElementById('adminPanel').classList.remove('hidden');
+              await refreshAdminData();
+              box.className='text-xs text-green-700'; box.textContent='تم تفعيل وضع المشرف ✅';
+            } else {
+              box.className='text-xs text-red-600'; box.textContent='رمز غير صحيح.';
+            }
+          } catch (e) {
+            box.className='text-xs text-red-600'; box.textContent = e?.message || 'تعذر التفعيل';
+          }
+        };
+      } catch(e) {}
+
+
       // Booking form
       $('formBooking').onsubmit = async (e) => {
         e.preventDefault();
         if (!currentUser) { $('bkMsg').textContent = 'سجّل الدخول أولاً.'; return; }
         $('bkMsg').textContent = '';
-        try { dbg('Mode: '+authMode);
+        try {
           const payload = {
             user_id: currentUser.id,
             name: $('bkName').value,
@@ -381,7 +410,7 @@
 
       // Upload receipt and save payment
       $('btnSavePayment').onclick = async () => {
-        try { dbg('Mode: '+authMode);
+        try {
           const f = $('receiptFile').files[0];
           if (f && currentUser) {
             const path = `${currentUser.id}/${Date.now()}_${f.name}`;
