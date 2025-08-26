@@ -2,6 +2,23 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+
+  <script>
+    // Guaranteed global helpers for opening/closing the auth modal
+    function openAuth() {
+      try {
+        var modal = document.getElementById('authModal');
+        if (modal) modal.classList.remove('hidden');
+      } catch (e) { console.error(e); }
+    }
+    function closeAuth() {
+      try {
+        var modal = document.getElementById('authModal');
+        if (modal) modal.classList.add('hidden');
+      } catch (e) { console.error(e); }
+    }
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>mkam339 — بدون React/Babel</title>
