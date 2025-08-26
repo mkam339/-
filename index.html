@@ -220,6 +220,12 @@
     </div>
   </footer>
 
+  <div id="dbg" style="position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow:auto;background:#111;color:#fff;font:12px/1.4 monospace;z-index:99999;display:none;padding:8px"></div>
+  <script>
+    function dbg(msg){ try{var b=document.getElementById('dbg'); b.style.display='block'; var d=document.createElement('div'); d.textContent='• '+msg; b.appendChild(d);}catch(e){} }
+  </script>
+
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     function openAuth(){ try{ document.getElementById('authModal').classList.remove('hidden'); }catch(e){} }
@@ -254,7 +260,7 @@
     // ===== Helpers =====
 
     async function afterAuthSuccess() {
-      const { data } = await supabase.auth.getUser();
+      dbg('Checking user...'); const { data, error:errUser } = await supabase.auth.getUser(); if(errUser){ dbg('getUser error: '+(errUser.message||errUser)); }
       currentUser = data?.user || null;
       if (!currentUser) return;
       // ensure profile exists (init may have failed earlier)
@@ -275,7 +281,7 @@
 
 
     // ===== Boot =====
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async () => { dbg('DOM ready');
       $('year').textContent = new Date().getFullYear();
       // Auth modal toggles
       try { $('btnOpenAuth').onclick = () => openAuth(); } catch(e){}
@@ -283,8 +289,15 @@
       $('modeLogin').onclick = () => { authMode='login'; $('modeLogin').classList.add('bg-neutral-50'); $('modeSignup').classList.remove('bg-neutral-50'); };
       $('modeSignup').onclick = () => { authMode='signup'; $('modeSignup').classList.add('bg-neutral-50'); $('modeLogin').classList.remove('bg-neutral-50'); };
 
+
+      try {
+        const { data: ping, error: pingErr } = await supabase.from('settings').select('key').limit(1);
+        if (pingErr) { dbg('DB ping error: '+(pingErr.message||pingErr)); }
+        else { dbg('DB ping ok'); }
+      } catch(e){ dbg('DB ping exception: '+e.message); }
+
       // Current user
-      const { data } = await supabase.auth.getUser();
+      dbg('Checking user...'); const { data, error:errUser } = await supabase.auth.getUser(); if(errUser){ dbg('getUser error: '+(errUser.message||errUser)); }
       currentUser = data?.user || null;
       if (currentUser) {
         const { data: prof } = await supabase.from('profiles').select('role').eq('id', currentUser.id).maybeSingle();
@@ -293,7 +306,7 @@
       }
 
       // Auth form
-      $('authForm').onsubmit = async (e) => {
+      $('authForm').onsubmit = async (e) => { dbg('Auth submit start');
         e.preventDefault();
         $('authMsg').className = 'text-xs';
         $('authMsg').textContent = '...';
@@ -302,7 +315,7 @@
         const password = $('authPass').value.trim();
         const code = $('authCode').value.trim();
 
-        try {
+        try { dbg('Mode: '+authMode);
   if (authMode === 'login') {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
@@ -317,10 +330,10 @@
   await afterAuthSuccess();
 } catch {} }
           } else {
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            dbg('Calling signUp'); const { data, error } = await supabase.auth.signUp({ email, password }); dbg('signUp result: '+ (error? ('ERR '+error.message):('OK user? '+ (!!data&&!!data.user))) );
             if (error) throw error;
             if (!data?.user) { $('authMsg').textContent = 'تم إرسال تأكيد للبريد. افتح الرابط ثم سجّل الدخول.'; return; }
-            try { await supabase.rpc('init_profile'); } catch {}
+            try { dbg('Mode: '+authMode); await supabase.rpc('init_profile'); } catch {}
             if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
           }
           // location.reload(); // disabled due to persistSession=false
@@ -335,7 +348,7 @@
         e.preventDefault();
         if (!currentUser) { $('bkMsg').textContent = 'سجّل الدخول أولاً.'; return; }
         $('bkMsg').textContent = '';
-        try {
+        try { dbg('Mode: '+authMode);
           const payload = {
             user_id: currentUser.id,
             name: $('bkName').value,
@@ -368,7 +381,7 @@
 
       // Upload receipt and save payment
       $('btnSavePayment').onclick = async () => {
-        try {
+        try { dbg('Mode: '+authMode);
           const f = $('receiptFile').files[0];
           if (f && currentUser) {
             const path = `${currentUser.id}/${Date.now()}_${f.name}`;
