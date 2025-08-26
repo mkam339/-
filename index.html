@@ -209,6 +209,7 @@
     const SUPABASE_URL  = "https://lwvjomfkamarseptfxey.supabase.co";
     const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3dmpvbWZrYW1hcnNlcHRmeGV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMDQxODcsImV4cCI6MjA3MTc4MDE4N30.1YQm212pZMbbb3vdq5UTFUhJ-oygwswpZn-rTQCDPic";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+
       auth:{ persistSession:false, autoRefreshToken:true, storage:{ getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{} } }
     });
 
@@ -229,6 +230,29 @@
     function genRef() {
       return `MK-${Math.random().toString(36).slice(2,8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
     }
+
+    // ===== Helpers =====
+
+    async function afterAuthSuccess() {
+      const { data } = await supabase.auth.getUser();
+      currentUser = data?.user || null;
+      if (!currentUser) return;
+      // ensure profile exists (init may have failed earlier)
+      try { await supabase.rpc('init_profile'); } catch (e) {}
+      const { data: prof } = await supabase.from('profiles').select('role').eq('id', currentUser.id).maybeSingle();
+      profileRole = prof?.role || 'client';
+      // Show admin link/panel if admin
+      if (profileRole === 'admin') {
+        document.getElementById('adminLink').classList.remove('hidden');
+        document.getElementById('adminGuard').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        await refreshAdminData();
+      }
+      // Close auth modal and clear message
+      document.getElementById('authMsg').textContent = 'تم تسجيل الدخول ✅';
+      setTimeout(()=>{ document.getElementById('btnCloseAuth').click(); }, 300);
+    }
+
 
     // ===== Boot =====
     document.addEventListener('DOMContentLoaded', async () => {
@@ -259,10 +283,19 @@
         const code = $('authCode').value.trim();
 
         try {
-          if (authMode === 'login') {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+  if (authMode === 'login') {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+  } else {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    if (!data?.user) { document.getElementById('authMsg').textContent = 'تم إرسال تأكيد للبريد. افتح الرابط ثم سجّل الدخول.'; return; }
+    try { await supabase.rpc('init_profile'); } catch {}
+    if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
+  }
+  await afterAuthSuccess();
+} catch {} }
           } else {
             const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) throw error;
@@ -270,7 +303,7 @@
             try { await supabase.rpc('init_profile'); } catch {}
             if (code) { try { await supabase.rpc('elevate_to_admin', { p_code: code }); } catch {} }
           }
-          location.reload();
+          // location.reload(); // disabled due to persistSession=false
         } catch (err) {
           $('authMsg').classList.add('text-red-600');
           $('authMsg').textContent = err?.message || 'خطأ';
